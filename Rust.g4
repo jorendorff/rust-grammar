@@ -189,7 +189,8 @@ builtin_ty:
     | 'f64';
 
 ty:
-    builtin_ty
+    '_'
+    | builtin_ty
     // The next 3 productions match exactly `'(' ty_list ')'`,
     // but (i32) and (i32,) are distinct types, so parse them with different rules.
     | '(' ')'                           // unit
@@ -222,10 +223,9 @@ ty_arg_list:
     ty_arg (',' ty_arg)* ','?;
 
 ty_arg:
-    '_'
-    | ty ('+' ty_bound)?;  // BUG - This very weird line means "match either a type
-                           // or a type bound that does not start with a lifetime".
-                           // I don't think it's possible this is right.
+    ty ('+' ty_bound)?;  // BUG - This very weird line means "match either a type
+                         // or a type bound that does not start with a lifetime".
+                         // I don't think it's possible this is right.
 
 ty_params:
     '<' lifetime_param_list '>'
