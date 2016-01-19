@@ -581,7 +581,7 @@ StringLit:
     '"' STRING_ELEMENT* '"';
 
 CharLit:
-    '\'' (CHAR | '"')* '\'';
+    '\'' (CHAR | '"') '\'';
 
 BareIntLit:
     '0'
