@@ -202,7 +202,13 @@ ty_path_segment:
 
 ty_args:
     '<' lifetime_list '>'
-    | '<' (Lifetime ',')* ty_list '>';
+    | '<' (Lifetime ',')* ty_arg_list '>';
+
+ty_arg_list:
+    ty_arg (',' ty_arg)* ','?;
+
+ty_arg:
+    ty ('+' ty_bound)?;  // BUG - this can't be right
 
 ty_params:
     '<' lifetime_param_list '>'
