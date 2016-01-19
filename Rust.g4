@@ -548,7 +548,7 @@ pat:
     | lit
     | lit '...' lit
     | '_'
-    | 'mut'? 'ref'? Ident
+    | 'ref'? 'mut'? Ident
     | path '(' enum_tuple_field_pats ')'
     | path '{' enum_struct_field_pats? '}'
     | path
