@@ -300,7 +300,11 @@ match_arms:
     | match_arm_intro expr (',' match_arms?)?;
 
 match_arm_intro:
-    pat match_if_clause? '=>';
+    match_pat match_if_clause? '=>';
+
+match_pat:
+    pat
+    | match_pat '|' pat;
 
 match_if_clause:
     'if' expr;
@@ -510,7 +514,7 @@ expr_no_struct:
 
 // Patterns
 
-prim_pat:
+pat:
     macro_use
     | lit
     | lit '...' lit
@@ -522,11 +526,8 @@ prim_pat:
     | '(' ')'
     | '(' pat ')'
     | '(' pat ',' pat_list? ')'
-    | '&' pat;
-
-pat:
-    prim_pat
-    | pat '|' prim_pat;
+    | '&' pat
+    | Ident '@' pat;
 
 pat_list:
     pat (',' pat)* ','?;
