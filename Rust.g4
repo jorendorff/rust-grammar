@@ -508,9 +508,8 @@ prim_pat:
     | lit '...' lit
     | '_'
     | 'mut'? 'ref'? Ident
-    | path '(' '..' ')'
-    | path '(' pat_list? ')'
-    | path '{' field_pat_list? '}'
+    | path '(' enum_tuple_field_pats ')'
+    | path '{' enum_struct_field_pats? '}'
     | path
     | '(' ')'
     | '(' pat ')'
@@ -524,12 +523,17 @@ pat:
 pat_list:
     pat (',' pat)* ','?;
 
+enum_tuple_field_pats:
+    '..'
+    | pat (',' pat)* (',' '..' | ','?);
+
+enum_struct_field_pats:
+    '..'
+    | field_pat (',' field_pat)* (',' '..' | ','?);
+
 field_pat:
     'mut'? 'ref'? Ident
     | Ident ':' pat;
-
-field_pat_list:
-    field_pat (',' field_pat)* ','?;
 
 
 
