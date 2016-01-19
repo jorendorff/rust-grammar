@@ -569,8 +569,13 @@ fragment DEC_DIGITS:
     '0' '_'*
     | [1-9][0-9_]*;
 
+fragment INT_SUFFIX:
+    [ui] ('8'|'16'|'32'|'64'|'size');
+
 FullIntLit:
-    DEC_DIGITS ([ui] ('8'|'16'|'32'|'64'|'size'))?;
+    DEC_DIGITS INT_SUFFIX?
+    | '0x' '_'* [0-9a-fA-F] [0-9a-fA-F_]* INT_SUFFIX?
+    | '0o' '_'* [0-7] [0-7_]* INT_SUFFIX?;
 
 fragment EXPONENT:
     [Ee] [+-]? '_'* [0-9] [0-9_]*;
