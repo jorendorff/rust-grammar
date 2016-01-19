@@ -9,6 +9,7 @@ mod_body:
 mod_element:
     macro_use
     | attr* 'pub'? item
+    | attr* 'extern' 'crate' Ident ('as' Ident)? ';'
     | 'impl' ty '{' impl_item* '}';
 
 item:
@@ -18,8 +19,7 @@ item:
     | mod_decl_short
     | mod_decl
     | struct_decl
-    | enum_decl
-    | macro_use;
+    | enum_decl;
 
 impl_item:
     'pub'? method_decl;
@@ -29,11 +29,14 @@ use_decl:
 
 use_suffix:
     '::' '*'
-    | '::' '{' (use_ident ',')* use_ident? '}';
+    | '::' '{' use_item_list '}'
+    | 'as' Ident;
 
-use_ident:
-    Ident
-    | 'self';
+use_item:
+    ('self' | Ident) ('as' Ident)?;
+
+use_item_list:
+    use_item (',' use_item)* ','?;
 
 const_decl:
     'const' Ident ':' ty '=' expr ';';
@@ -131,7 +134,7 @@ tt:
 
 // Types and type parameters
 
-ty:
+builtin_ty:
     'bool'
     | 'char'
     | 'i8'
@@ -144,25 +147,44 @@ ty:
     | 'u64'
     | 'isize'
     | 'usize'
+    | 'f32'
+    | 'f64';
+
+ty:
+    builtin_ty
     // The next 3 productions match exactly `'(' ty_list ')'`,
     // but (i32) and (i32,) are distinct types, so parse them with different rules.
     | '(' ')'                           // unit
     | '(' ty ')'                        // grouping (parens are ignored)
     | '(' ty ',' ty_list ')'            // tuple
     | '&' Lifetime? 'mut'? ty
-    | Ident ty_params?;
+    | ty_path;
 
 ty_list:
     ty (',' ty)* ','?;
 
+ty_path:
+    path_prefix? ty_path_segment ('::' ty_path_segment)*;
+
+ty_path_segment:
+    Ident ty_params?;
+
 ty_params:
-    '<' (Lifetime ',')* ty_list '>';
+    '<' lifetime_list '>'
+    | '<' (Lifetime ',')* ty_list '>';
+
+lifetime_list:
+    Lifetime (',' Lifetime)* ','?;
 
 
 // Blocks and expressions
 
 path:
-    path_prefix? path_segment ('::' path_segment)*;
+    path_prefix? path_init_segment ('::' path_segment)*;
+
+path_init_segment:
+    path_segment
+    | builtin_ty;
 
 path_prefix:
     '::'
@@ -486,8 +508,8 @@ FloatLit:
 Whitespace:
     [ \t\r\n]+ -> skip;
 
-Newline:
-    '\r'? '\n' -> skip;
-
 LineComment:
     '//' ~[\r\n]* -> skip;
+
+// BUG: doc comments are ignored
+// BUG: block (/*...*/) comments are not supported
