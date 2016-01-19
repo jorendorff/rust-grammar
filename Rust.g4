@@ -345,7 +345,7 @@ add_expr:
 shift_expr:
     add_expr
     | shift_expr '<<' add_expr
-    | shift_expr '>>' add_expr;
+    | shift_expr '>' '>' add_expr;
 
 bit_and_expr:
     shift_expr
@@ -419,7 +419,7 @@ add_expr_no_struct:
 shift_expr_no_struct:
     add_expr_no_struct
     | shift_expr_no_struct '<<' add_expr_no_struct
-    | shift_expr_no_struct '>>' add_expr_no_struct;
+    | shift_expr_no_struct '>' '>' add_expr_no_struct;
 
 bit_and_expr_no_struct:
     shift_expr_no_struct
@@ -453,7 +453,7 @@ range_expr_no_struct:
 assign_expr_no_struct:
     range_expr_no_struct
     | range_expr_no_struct ('=' | '*=' | '/=' | '%=' | '+=' | '-='
-                                | '<<=' | '>>=' | '&=' | '^=' | '|=' ) assign_expr_no_struct;
+                                | '<<=' | '>' '>=' | '&=' | '^=' | '|=' ) assign_expr_no_struct;
 
 expr_no_struct:
     assign_expr_no_struct;
