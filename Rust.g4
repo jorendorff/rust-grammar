@@ -300,6 +300,20 @@ lit:
     | CharLit
     | StringLit;
 
+closure_params:
+    '||'
+    | '|' closure_param_list? '|';
+
+closure_param:
+    pat (':' ty)?;
+
+closure_param_list:
+    closure_param (',' closure_param)* ','?;
+
+closure_tail:
+    rtype block
+    | expr;
+
 prim_expr_no_struct:
     macro_use
     | path
@@ -313,7 +327,8 @@ prim_expr_no_struct:
     | blocky_expr
     | 'break' Lifetime?
     | 'continue' Lifetime?
-    | 'return' expr?;  // this is IMO a rustc bug, should be expr_no_struct
+    | 'return' expr?  // this is IMO a rustc bug, should be expr_no_struct
+    | closure_params closure_tail;
 
 prim_expr:
     path '{' field_list? '}'
