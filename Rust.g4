@@ -164,6 +164,7 @@ ty:
     | '(' ')'                           // unit
     | '(' ty ')'                        // grouping (parens are ignored)
     | '(' ty ',' ty_list ')'            // tuple
+    | '[' ty (';' expr)? ']'
     | '&' Lifetime? 'mut'? ty
     | ty_path;
 
