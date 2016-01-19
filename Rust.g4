@@ -288,8 +288,14 @@ cond_or_pat:
     | 'let' pat '=' expr;
 
 match_arms:
-    pat '=>' blocky_expr ','? match_arms?
-    | pat '=>' expr (',' match_arms?)?;
+    match_arm_intro blocky_expr ','? match_arms?
+    | match_arm_intro expr (',' match_arms?)?;
+
+match_arm_intro:
+    pat match_if_clause? '=>';
+
+match_if_clause:
+    'if' expr;
 
 lit:
     'true'
