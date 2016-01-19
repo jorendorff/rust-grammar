@@ -58,13 +58,13 @@ const_decl:
     'const' Ident ':' ty '=' expr ';';
 
 fn_decl:
-    'fn' Ident ty_params? '(' param_list? ')' rtype? block;
+    'fn' Ident ty_params? '(' param_list? ')' rtype? where_clause? block;
 
 method_decl:
     method_head block;
 
 method_head:
-    'fn' Ident ty_params? '(' method_param_list? ')' rtype?;
+    'fn' Ident ty_params? '(' method_param_list? ')' rtype? where_clause?;
 
 param:
     pat ':' ty;
@@ -82,6 +82,15 @@ method_param_list:
 
 rtype:
     '->' (ty | '!');
+
+where_clause:
+    'where' where_bound_list;
+
+where_bound_list:
+    where_bound (',' where_bound)* ','?;
+
+where_bound:
+    ty ':' ty_bound;
 
 mod_decl_short:
     'mod' Ident ';';
@@ -209,8 +218,9 @@ ty_arg_list:
 
 ty_arg:
     '_'
-    | ty ('+' ty_bound)?;  // BUG - this very weird line means "match either a type
-                           // or a type bound that does not start with a lifetime"
+    | ty ('+' ty_bound)?;  // BUG - This very weird line means "match either a type
+                           // or a type bound that does not start with a lifetime".
+                           // I don't think it's possible this is right.
 
 ty_params:
     '<' lifetime_param_list '>'
