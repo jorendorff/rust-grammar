@@ -599,5 +599,7 @@ Whitespace:
 LineComment:
     '//' ~[\r\n]* -> skip;
 
+BlockComment:
+    '/*' (~[*/] | '/'* BlockComment | '/'+ (~[*/]) | '*'+ ~[*/])* '*'+ '/' -> skip;
+
 // BUG: doc comments are ignored
-// BUG: block (/*...*/) comments are not supported
