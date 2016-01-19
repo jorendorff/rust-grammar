@@ -98,16 +98,16 @@ field_decl_list:
     field_decl (',' field_decl)* ','?;
 
 enum_decl:
-    'enum' Ident ty_params? '{' variant_list? '}';
+    'enum' Ident ty_params? '{' enum_variant_list? '}';
 
-variant:
+enum_variant:
     Ident '(' ty_list ')'
     | Ident '{' enum_field_decl_list '}'
     | Ident '=' expr
     | Ident;
 
-variant_list:
-    variant (',' variant)* ','?;
+enum_variant_list:
+    enum_variant (',' enum_variant)* ','?;
 
 // enum variants that are struct-like can't have `pub` on individual fields.
 enum_field_decl:
