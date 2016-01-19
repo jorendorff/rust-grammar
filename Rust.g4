@@ -20,7 +20,8 @@ pub_able_item:
     | mod_decl_short
     | mod_decl
     | struct_decl
-    | enum_decl;
+    | enum_decl
+    | trait_decl;
 
 impl_for:
     'for' ty;
@@ -52,7 +53,10 @@ fn_decl:
     'fn' Ident ty_params? '(' param_list? ')' rtype? block;
 
 method_decl:
-    'fn' Ident ty_params? '(' method_param_list? ')' rtype? block;
+    method_head block;
+
+method_head:
+    'fn' Ident ty_params? '(' method_param_list? ')' rtype?;
 
 param:
     pat ':' ty;
@@ -116,6 +120,16 @@ enum_field_decl:
 enum_field_decl_list:
     enum_field_decl (',' enum_field_decl)* ','?;
 
+trait_decl:
+    'trait' Ident ty_params? trait_super? '{' trait_member* '}';
+
+trait_super:
+    ':' ty_list;
+
+trait_member:
+    'type' Ident ';'
+    | method_head (block | ';');
+
 
 // Attributes
 
@@ -175,7 +189,8 @@ ty_path:
     path_prefix? ty_path_segment ('::' ty_path_segment)*;
 
 ty_path_segment:
-    Ident ty_args?;
+    'Self'
+    | Ident ty_args?;
 
 ty_args:
     '<' lifetime_list '>'
