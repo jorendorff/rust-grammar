@@ -30,12 +30,20 @@ impl_item:
     'pub'? method_decl;
 
 use_decl:
-    'use' path use_suffix? ';';
+    'use' use_path ';';
+
+use_path:
+    path use_suffix?
+    | 'self' use_particular
+    | 'super' use_particular;
 
 use_suffix:
-    '::' '*'
-    | '::' '{' use_item_list '}'
+    use_particular
     | 'as' Ident;
+
+use_particular:
+    '::' '*'
+    | '::' '{' use_item_list '}';
 
 use_item:
     ('self' | Ident) ('as' Ident)?;
