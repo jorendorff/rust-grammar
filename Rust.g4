@@ -376,14 +376,18 @@ prim_expr_no_struct:
     | closure_params closure_tail;
 
 prim_expr:
-    path '{' field_list? '}'
+    path '{' fields? '}'
     | prim_expr_no_struct;
 
 field:
     Ident ':' expr;
 
-field_list:
-    field (',' field)* ','?;
+fields:
+    struct_update_base
+    | field (',' field)* (',' struct_update_base | ','?);
+
+struct_update_base:
+    '..' expr;  // this is IMO a bug in the grammar. should be or_expr or something.
 
 
 post_expr:
