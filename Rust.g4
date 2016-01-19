@@ -256,7 +256,7 @@ stmt:
 blocky_expr:
     block
     | 'if' cond_or_pat block ('else' 'if' cond_or_pat block)* ('else' block)?
-    | 'match' expr_no_struct '{' arm_list? '}'
+    | 'match' expr_no_struct '{' match_arms? '}'
     | loop_label? loop_expr;
 
 loop_expr:
@@ -271,11 +271,9 @@ cond_or_pat:
     expr_no_struct
     | 'let' pat '=' expr;
 
-arm:
-    pat '=>' expr;
-
-arm_list:
-    arm (',' arm)* ','?;
+match_arms:
+    pat '=>' blocky_expr ','? match_arms?
+    | pat '=>' expr (',' match_arms?)?;
 
 lit:
     'true'
