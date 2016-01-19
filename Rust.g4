@@ -197,10 +197,15 @@ ty:
     | '(' ty ',' ty_list ')'            // tuple
     | '[' ty (';' expr)? ']'
     | '&' Lifetime? 'mut'? ty
+    | 'fn' '(' ty_list ')' rtype?
+    | fn_trait
     | ty_path;
 
 ty_list:
     ty (',' ty)* ','?;
+
+fn_trait:
+    ty_path '(' ty_list ')' rtype?;  // BUG: ty_path is too permissive
 
 ty_path:
     path_prefix? ty_path_segment ('::' ty_path_segment)*;
@@ -247,6 +252,7 @@ lifetime_bound:
 
 prim_ty_bound:
     ty_path
+    | fn_trait
     | Lifetime;
 
 ty_bound:
