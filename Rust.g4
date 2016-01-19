@@ -10,7 +10,7 @@ mod_element:
     macro_use
     | attr* 'pub'? item
     | attr* 'extern' 'crate' Ident ('as' Ident)? ';'
-    | 'impl' ty '{' impl_item* '}';
+    | 'impl' ty_params? ty '{' impl_item* '}';
 
 item:
     use_decl
@@ -42,10 +42,10 @@ const_decl:
     'const' Ident ':' ty '=' expr ';';
 
 fn_decl:
-    'fn' Ident '(' arg_list? ')' rtype? block;
+    'fn' Ident ty_params? '(' arg_list? ')' rtype? block;
 
 method_decl:
-    'fn' Ident '(' method_arg_list? ')' rtype? block;
+    'fn' Ident ty_params? '(' method_arg_list? ')' rtype? block;
 
 arg:
     Ident ':' ty;
@@ -167,14 +167,42 @@ ty_path:
     path_prefix? ty_path_segment ('::' ty_path_segment)*;
 
 ty_path_segment:
-    Ident ty_params?;
+    Ident ty_args?;
 
-ty_params:
+ty_args:
     '<' lifetime_list '>'
     | '<' (Lifetime ',')* ty_list '>';
 
 lifetime_list:
     Lifetime (',' Lifetime)* ','?;
+
+ty_params:
+    '<' lifetime_param_list '>'
+    | '<' (lifetime_param ',')* ty_param_list '>';
+
+lifetime_param:
+    Lifetime (':' lifetime_bound)?;
+
+lifetime_param_list:
+    lifetime_param (',' lifetime_param)* ','?;
+
+ty_param:
+    Ident (':' ty_bound)?;
+
+ty_param_list:
+    ty_param (',' ty_param)* ','?;
+
+lifetime_bound:
+    Lifetime
+    | lifetime_bound '+' Lifetime;
+
+prim_ty_bound:
+    ty_path
+    | Lifetime;
+
+ty_bound:
+    prim_ty_bound
+    | ty_bound '+' prim_ty_bound;
 
 
 // Blocks and expressions
@@ -193,7 +221,7 @@ path_prefix:
 
 path_segment:
     Ident
-    | Ident '::' ty_params;
+    | Ident '::' ty_args;
 
 block: '{' block_body '}';
 
@@ -283,7 +311,7 @@ post_expr:
 
 post_expr_tail:
     '[' expr ']'
-    | '.' Ident (('::' ty_params)? '(' expr_list? ')')?
+    | '.' Ident (('::' ty_args)? '(' expr_list? ')')?
     | '.' BareIntLit
     | '(' expr_list? ')';
 
