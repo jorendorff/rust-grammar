@@ -7,4 +7,4 @@ alias grun='CLASSPATH=".:$CLASSPATH" java org.antlr.v4.gui.TestRig'
 
 antlr4 Rust.g4
 javac Rust*.java
-grun Rust crate -tree
+## grun Rust crate -tree
