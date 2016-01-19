@@ -324,6 +324,8 @@ prim_expr_no_struct:
     | '(' ')'
     | '(' expr ')'
     | '(' expr ',' expr_list ')'
+    | '[' expr_list? ']'
+    | '[' expr ';' expr ']'
     | blocky_expr
     | 'break' Lifetime?
     | 'continue' Lifetime?
