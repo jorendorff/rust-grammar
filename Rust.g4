@@ -4,22 +4,26 @@ crate:
     mod_body EOF;
 
 mod_body:
-    inner_attr* mod_element*;
-
-mod_element:
-    macro_use
-    | attr* 'pub'? item
-    | attr* 'extern' 'crate' Ident ('as' Ident)? ';'
-    | 'impl' ty_params? ty '{' impl_item* '}';
+    inner_attr* item*;
 
 item:
+    macro_use
+    | attr* 'pub'? pub_able_item
+    | attr* 'extern' 'crate' Ident ('as' Ident)? ';'
+    | 'impl' ty_params? ty impl_for? '{' impl_item* '}';
+
+pub_able_item:
     use_decl
+    | type_decl
     | const_decl
     | fn_decl
     | mod_decl_short
     | mod_decl
     | struct_decl
     | enum_decl;
+
+impl_for:
+    'for' ty;
 
 impl_item:
     'pub'? method_decl;
@@ -38,28 +42,31 @@ use_item:
 use_item_list:
     use_item (',' use_item)* ','?;
 
+type_decl:
+    'type' Ident '=' ty ';';
+
 const_decl:
     'const' Ident ':' ty '=' expr ';';
 
 fn_decl:
-    'fn' Ident ty_params? '(' arg_list? ')' rtype? block;
+    'fn' Ident ty_params? '(' param_list? ')' rtype? block;
 
 method_decl:
-    'fn' Ident ty_params? '(' method_arg_list? ')' rtype? block;
+    'fn' Ident ty_params? '(' method_param_list? ')' rtype? block;
 
-arg:
-    Ident ':' ty;
+param:
+    pat ':' ty;
 
-arg_list:
-    arg (',' arg)* ','?;
+param_list:
+    param (',' param)* ','?;
 
-self_arg:
+self_param:
     'self'
     | '&' 'self'
     | '&' 'mut' 'self';
 
-method_arg_list:
-    (arg | self_arg) (',' arg)* ','?;
+method_param_list:
+    (param | self_param) (',' param)* ','?;
 
 rtype:
     '->' (ty | '!');
@@ -75,7 +82,7 @@ struct_decl:
 
 struct_tail:
     ';'
-    | '(' tuple_struct_field_list ')'
+    | '(' tuple_struct_field_list ')' ';'
     | '{' field_decl_list '}';
 
 tuple_struct_field:
@@ -173,12 +180,12 @@ ty_args:
     '<' lifetime_list '>'
     | '<' (Lifetime ',')* ty_list '>';
 
-lifetime_list:
-    Lifetime (',' Lifetime)* ','?;
-
 ty_params:
     '<' lifetime_param_list '>'
     | '<' (lifetime_param ',')* ty_param_list '>';
+
+lifetime_list:
+    Lifetime (',' Lifetime)* ','?;
 
 lifetime_param:
     Lifetime (':' lifetime_bound)?;
@@ -459,10 +466,12 @@ expr_no_struct:
 // Patterns
 
 prim_pat:
-    lit
+    macro_use
+    | lit
     | lit '...' lit
     | '_'
     | 'mut'? 'ref'? Ident
+    | path '(' '..' ')'
     | path '(' pat_list? ')'
     | path '{' field_pat_list? '}'
     | path
@@ -504,8 +513,13 @@ fragment CHAR:
     | '\\x' [0-7] [0-9a-fA-F]
     | '\\u{' [0-9a-fA-F]+ '}';
 
+fragment STRING_ELEMENT:
+    CHAR
+    | '\''
+    | '\\' '\r'? '\n' [ \t]*;
+
 StringLit:
-    '"' (CHAR | '\'' )* '"';
+    '"' STRING_ELEMENT* '"';
 
 CharLit:
     '\'' (CHAR | '"')* '\'';
