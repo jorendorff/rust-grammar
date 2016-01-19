@@ -289,7 +289,8 @@ blocky_expr:
     block
     | 'if' cond_or_pat block ('else' 'if' cond_or_pat block)* ('else' block)?
     | 'match' expr_no_struct '{' match_arms? '}'
-    | loop_label? loop_expr;
+    | loop_label? loop_expr
+    | 'unsafe' block;
 
 loop_expr:
     'while' cond_or_pat block
