@@ -400,6 +400,7 @@ lit:
     | BareIntLit
     | FullIntLit
     | ByteLit
+    | ByteStringLit
     | FloatLit
     | CharLit
     | StringLit;
@@ -667,26 +668,36 @@ fragment CHAR:
     | '\\x' [0-7] [0-9a-fA-F]
     | '\\u{' [0-9a-fA-F]+ '}';
 
-fragment STRING_ELEMENT:
-    CHAR
-    | '\''
+CharLit:
+    '\'' (CHAR | '"') '\'';
+
+fragment OTHER_STRING_ELEMENT:
+    '\''
     | '\\' '\r'? '\n' [ \t]*
     | '\r'
     | '\n';
 
+fragment STRING_ELEMENT:
+    CHAR
+    | OTHER_STRING_ELEMENT;
+
 StringLit:
     '"' STRING_ELEMENT* '"';
 
-CharLit:
-    '\'' (CHAR | '"') '\'';
-
 fragment BYTE:
-    [ -&(-~]    // any ASCII character from 32 (space) to 126 (tilde), except 39 (single-quote)
+    [ !#-&(-~]    // any ASCII character from 32 (space) to 126 (`~`), except 34 (`"`) and 39 (`'`)
     | SIMPLE_ESCAPE
     | '\\x' [0-9a-fA-F][0-9a-fA-F];
 
 ByteLit:
-    'b\'' BYTE '\'';
+    'b\'' (BYTE | '"') '\'';
+
+fragment BYTE_STRING_ELEMENT:
+    BYTE
+    | OTHER_STRING_ELEMENT;
+
+ByteStringLit:
+    'b"' BYTE_STRING_ELEMENT* '"';
 
 BareIntLit:
     '0'
@@ -726,7 +737,7 @@ BlockComment:
     '/*' (~[*/] | '/'* BlockComment | '/'+ (~[*/]) | '*'+ ~[*/])* '*'+ '/' -> skip;
 
 // BUG: doc comments are ignored
-// BUG: byte-string constants are not supported
+// BUG: binary int literals `0b10010` are not supported
 // BUG: not all string constant forms are supported
 // BUG: paths and type paths starting with `<`, like `<Vec<i32>>::new`
 //      and `<Frog as Animal>::move`, are not supported,
