@@ -10,7 +10,7 @@ item:
     macro_use
     | attr* 'pub'? pub_able_item
     | attr* 'extern' 'crate' Ident ('as' Ident)? ';'
-    | 'impl' ty_params? ty impl_for? '{' impl_item* '}';
+    | 'impl' ty_params? ty impl_for? where_clause? '{' impl_item* '}';
 
 pub_able_item:
     use_decl
