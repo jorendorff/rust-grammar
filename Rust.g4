@@ -27,7 +27,8 @@ impl_for:
     'for' ty;
 
 impl_item:
-    attr* 'pub'? method_decl;
+    attr* 'pub'? method_decl
+    | attr* 'type' Ident '=' ty ';';
 
 use_decl:
     'use' use_path ';';
