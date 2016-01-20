@@ -192,15 +192,28 @@ ty:
     | '[' ty (';' expr)? ']'
     | '&' Lifetime? 'mut'? ty
     | '&&' Lifetime? 'mut'? ty          // should treat as `& & ty`
-    | 'fn' '(' ty_list ')' rtype?
+    | for_lifetime? 'fn' '(' ty_list ')' rtype?
     | fn_trait
     | ty_path;
+
+for_lifetime:
+    'for' '<' lifetime_def_list '>';
+
+lifetime_def:
+    Lifetime (':' lifetime_bounds)?;
+
+lifetime_bounds:
+    Lifetime
+    | lifetime_bounds '+' Lifetime;
+
+lifetime_def_list:
+    lifetime_def (',' lifetime_def)* ','?;
 
 ty_list:
     ty (',' ty)* ','?;
 
 fn_trait:
-    ty_path '(' ty_list ')' rtype?;  // BUG: ty_path is too permissive
+    for_lifetime? ty_path '(' ty_list ')' rtype?;  // BUG: ty_path is too permissive
 
 ty_path:
     path_prefix? ty_path_segment ('::' ty_path_segment)*;
