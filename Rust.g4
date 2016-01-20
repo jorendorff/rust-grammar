@@ -7,10 +7,12 @@ mod_body:
     inner_attr* item*;
 
 item:
-    attr* Ident '!' item_macro_tail
-    | attr* 'pub'? pub_able_item
-    | attr* 'extern' 'crate' Ident ('as' Ident)? ';'
-    | 'impl' ty_params? ty impl_for? where_clause? '{' impl_item* '}';
+    attr* 'pub'? pub_able_item
+    | 'impl' ty_params? ty impl_for? where_clause? '{' impl_item* '}'
+    | attr* item_macro_use;
+
+item_macro_use:
+    Ident '!' item_macro_tail;
 
 item_macro_tail:
     Ident? tt_parens ';'
@@ -19,6 +21,8 @@ item_macro_tail:
 
 pub_able_item:
     use_decl
+    | extern_crate  // `pub extern crate` is deprecated but still exists.
+    | foreign_mod
     | type_decl
     | static_decl
     | const_decl
@@ -51,16 +55,30 @@ use_path:
 use_suffix:
     '::' '*'
     | '::' '{' use_item_list '}'
-    | use_rename;
+    | rename;
 
 use_item:
-    any_ident use_rename?;
+    any_ident rename?;
 
 use_item_list:
     use_item (',' use_item)* ','?;
 
-use_rename:
+rename:
     'as' Ident;
+
+extern_crate:
+    'extern' 'crate' Ident rename? ';';
+
+foreign_mod:
+    abi '{' inner_attr* foreign_item* '}';
+
+foreign_item:
+    attr* 'pub'? foreign_item_tail
+    | attr* item_macro_use;
+
+foreign_item_tail:
+    'static' 'mut'? Ident ':' ty_sum ';'
+    | 'unsafe'? 'fn' Ident ty_params? '(' param_list? ')' rtype? where_clause? ';';
 
 type_decl:
     'type' Ident ty_params? '=' ty ';';
