@@ -558,15 +558,14 @@ pat:
     | lit
     | lit '...' lit
     | '_'
-    | 'ref'? 'mut'? Ident
+    | 'ref'? 'mut'? Ident ('@' pat)?
     | path '(' enum_tuple_field_pats ')'
     | path '{' enum_struct_field_pats? '}'
     | path
     | '(' ')'
     | '(' pat ')'
     | '(' pat ',' pat_list? ')'
-    | '&' pat
-    | Ident '@' pat;
+    | '&' pat;
 
 pat_list:
     pat (',' pat)* ','?;
