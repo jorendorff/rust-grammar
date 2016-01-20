@@ -111,9 +111,15 @@ self_param:
 method_param_list:
     (param | self_param) (',' param)* ','?;
 
+// Argument names are optional in traits. The ideal grammar here would be
+// `(pat ':')? ty`, but parsing this would be unreasonably complicated.
+// Instead, the `pat` is restricted to a few short, simple cases.
 trait_method_param:
-    ('&' | '&&' | 'mut')? Ident ':' ty
+    restricted_pat ':' ty
     | ty;
+
+restricted_pat:
+    ('&' | '&&' | 'mut')? ('_' | Ident);
 
 trait_method_param_list:
     (trait_method_param | self_param) (',' trait_method_param)* ','?;
@@ -660,7 +666,8 @@ fragment SIMPLE_ESCAPE:
     '\\' [0nrt'"\\];
 
 fragment CHAR:
-    ~['"\r\n\\]
+    ~['"\r\n\\\ud800-\udfff]          // a single BMP character other than a backslash, newline, or quote
+    | [\ud800-\udbff][\udc00-\udfff]  // a single non-BMP character (hack for Java)
     | SIMPLE_ESCAPE
     | '\\x' [0-7] [0-9a-fA-F]
     | '\\u{' [0-9a-fA-F]+ '}';
