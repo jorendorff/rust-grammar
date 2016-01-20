@@ -47,18 +47,19 @@ public class ParserDriver {
     }
 
     static int main() {
+	boolean ok = true;
         try {
             Scanner stdin = new Scanner(System.in);
             while (stdin.hasNextLine()) {
                 String filename = stdin.nextLine();
                 if (!canParse(filename))
-                    return 1;
+                    ok = false;
             }
         } catch (IOException exc) {
             exc.printStackTrace();
             return 2;
         }
-        return 0;
+        return ok ? 0 : 1;
     }
 
     public static void main(String[] args) {
