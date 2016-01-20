@@ -644,7 +644,9 @@ fragment CHAR:
 fragment STRING_ELEMENT:
     CHAR
     | '\''
-    | '\\' '\r'? '\n' [ \t]*;
+    | '\\' '\r'? '\n' [ \t]*
+    | '\r'
+    | '\n';
 
 StringLit:
     '"' STRING_ELEMENT* '"';
