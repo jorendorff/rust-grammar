@@ -33,23 +33,22 @@ use_decl:
     'use' use_path ';';
 
 use_path:
-    path use_suffix?
-    | 'self' use_particular
-    | 'super' use_particular;
+    '::'? '{' use_item_list '}'
+    | '::'? any_ident ('::' any_ident)* use_suffix?;
 
 use_suffix:
-    use_particular
-    | 'as' Ident;
-
-use_particular:
     '::' '*'
-    | '::' '{' use_item_list '}';
+    | '::' '{' use_item_list '}'
+    | use_rename;
 
 use_item:
-    ('self' | Ident) ('as' Ident)?;
+    any_ident use_rename?;
 
 use_item_list:
     use_item (',' use_item)* ','?;
+
+use_rename:
+    'as' Ident;
 
 type_decl:
     'type' Ident '=' ty ';';
@@ -576,6 +575,56 @@ field_pat:
 
 
 // Tokens
+
+any_ident:
+    Ident
+    | 'Self'
+    | 'as'
+    | 'bool'
+    | 'break'
+    | 'char'
+    | 'const'
+    | 'continue'
+    | 'crate'
+    | 'else'
+    | 'enum'
+    | 'extern'
+    | 'f32'
+    | 'f64'
+    | 'false'
+    | 'fn'
+    | 'for'
+    | 'i16'
+    | 'i32'
+    | 'i64'
+    | 'i8'
+    | 'if'
+    | 'impl'
+    | 'in'
+    | 'isize'
+    | 'let'
+    | 'loop'
+    | 'match'
+    | 'mod'
+    | 'mut'
+    | 'pub'
+    | 'ref'
+    | 'return'
+    | 'self'
+    | 'size'
+    | 'struct'
+    | 'super'
+    | 'trait'
+    | 'true'
+    | 'type'
+    | 'u16'
+    | 'u32'
+    | 'u64'
+    | 'u8'
+    | 'unsafe'
+    | 'use'
+    | 'usize'
+    | 'where';
 
 CashMoney:
     '$';
