@@ -15,6 +15,7 @@ item:
 pub_able_item:
     use_decl
     | type_decl
+    | static_decl
     | const_decl
     | fn_decl
     | mod_decl_short
@@ -53,6 +54,9 @@ use_rename:
 
 type_decl:
     'type' Ident ty_params? '=' ty ';';
+
+static_decl:
+    'static' Ident ':' ty '=' expr ';';
 
 const_decl:
     'const' Ident ':' ty '=' expr ';';
