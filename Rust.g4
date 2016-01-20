@@ -51,7 +51,7 @@ use_rename:
     'as' Ident;
 
 type_decl:
-    'type' Ident '=' ty ';';
+    'type' Ident ty_params? '=' ty ';';
 
 const_decl:
     'const' Ident ':' ty '=' expr ';';
