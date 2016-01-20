@@ -222,9 +222,10 @@ ty_arg_list:
     ty_arg (',' ty_arg)* ','?;
 
 ty_arg:
-    ty ('+' ty_bound)?;  // BUG - This very weird line means "match either a type
-                         // or a type bound that does not start with a lifetime".
-                         // I don't think it's possible this is right.
+    ty ('+' ty_bound)?  // BUG - This very weird line means "match either a type
+                        // or a type bound that does not start with a lifetime".
+                        // I don't think it's possible this is right.
+    | Ident '=' ty;
 
 ty_params:
     '<' lifetime_param_list '>'
