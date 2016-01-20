@@ -634,20 +634,30 @@ expr_no_struct:
 
 // Patterns
 
-pat:
+// A `pat_no_mut` is a pattern that does not start with `mut`.
+// It is distinct from `pat` to rule out ambiguity in parsing the
+// pattern `&mut x`, which must parse like `&mut (x)`, not `&(mut x)`.
+pat_no_mut:
     '_'
     | lit
     | lit '...' lit
+    | 'ref'? Ident ('@' pat)?
+    | 'ref' 'mut' Ident ('@' pat)?
     | Ident macro_tail
-    | 'ref'? 'mut'? Ident ('@' pat)?
     | path '(' enum_tuple_field_pats ')'
     | path '{' enum_struct_field_pats? '}'
     | path
     | '(' ')'
     | '(' pat ')'
     | '(' pat ',' pat_list? ')'
-    | '&' pat
-    | '&&' pat;   // meaning `& & pat`
+    | '&' pat_no_mut
+    | '&' 'mut' pat
+    | '&&' pat_no_mut   // `&& pat` means the same as `& & pat`
+    | '&&' 'mut' pat;
+
+pat:
+    pat_no_mut
+    | 'mut' Ident ('@' pat)?;
 
 pat_list:
     pat (',' pat)* ','?;
