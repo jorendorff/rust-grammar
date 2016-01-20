@@ -257,7 +257,7 @@ ty_list:
     ty (',' ty)* ','?;
 
 fn_trait:
-    for_lifetime? ty_path '(' ty_list ')' rtype?;  // BUG: ty_path is too permissive
+    for_lifetime? ty_path '(' ty_list? ')' rtype?;  // BUG: ty_path is too permissive
 
 ty_path:
     path_prefix? ty_path_segment ('::' ty_path_segment)*;
