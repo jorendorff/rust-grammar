@@ -338,6 +338,7 @@ lit:
     | 'false'
     | BareIntLit
     | FullIntLit
+    | ByteLit
     | FloatLit
     | CharLit
     | StringLit;
@@ -635,9 +636,12 @@ Lifetime:
 Ident:
     [A-Za-z_][0-9A-Za-z_]*;
 
+fragment SIMPLE_ESCAPE:
+    '\\' [0nrt'"\\];
+
 fragment CHAR:
     ~['"\r\n\\]
-    | '\\' [0nrt'"\\]
+    | SIMPLE_ESCAPE
     | '\\x' [0-7] [0-9a-fA-F]
     | '\\u{' [0-9a-fA-F]+ '}';
 
@@ -653,6 +657,14 @@ StringLit:
 
 CharLit:
     '\'' (CHAR | '"') '\'';
+
+fragment BYTE:
+    [ -&(-~]    // any ASCII character from 32 (space) to 126 (tilde), except 39 (single-quote)
+    | SIMPLE_ESCAPE
+    | '\\x' [0-9a-fA-F][0-9a-fA-F];
+
+ByteLit:
+    'b\'' BYTE '\'';
 
 BareIntLit:
     '0'
