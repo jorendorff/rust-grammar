@@ -743,8 +743,13 @@ fragment BYTE_STRING_ELEMENT:
     BYTE
     | OTHER_STRING_ELEMENT;
 
+fragment RAW_BYTE_STRING_BODY:
+    '"' [ -\x7f]*? '"'
+    | '#' RAW_BYTE_STRING_BODY '#';
+
 ByteStringLit:
-    'b"' BYTE_STRING_ELEMENT* '"';
+    'b"' BYTE_STRING_ELEMENT* '"'
+    | 'br' RAW_BYTE_STRING_BODY;
 
 BareIntLit:
     '0'
