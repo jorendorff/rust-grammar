@@ -324,10 +324,32 @@ ty_bounds:
 
 // Blocks and expressions
 
+// This is very slightly different from the syntax read by rustc:
+// whitespace is permitted after `self` and `super` in paths.
+//
+// In rustc, `self::x` is an acceptable path, but `self :: x` is not, because
+// `self` is a strict keyword except when followed immediately by the exact
+// characters `::`. Same goes for `super`. Pretty weird.
+//
+// So instead, this grammar accepts that `self` is a keyword, and permits it
+// specially at the very front of a path. Whitespace is ignored. `super` is OK
+// anywhere except at the end.
+
 path:
-    '::'? path_segment ('::' path_segment)*;
+    path_segment_no_super
+    | path_parent? '::' path_segment_no_super;
+
+path_parent:
+    'self'
+    | path_segment
+    | '::' path_segment
+    | path_parent '::' path_segment;
 
 path_segment:
+    path_segment_no_super
+    | 'super';
+
+path_segment_no_super:
     simple_path_segment ('::' ty_args)?;
 
 simple_path_segment:
