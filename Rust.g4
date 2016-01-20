@@ -290,6 +290,7 @@ lifetime_bound:
 
 prim_ty_bound:
     ty_path
+    | '?' ty_path
     | fn_trait
     | Lifetime;
 
