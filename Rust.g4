@@ -717,8 +717,19 @@ fragment STRING_ELEMENT:
     CHAR
     | OTHER_STRING_ELEMENT;
 
+fragment RAW_CHAR:
+    ~[\ud800-\udfff]          // any BMP character
+    | [\ud800-\udbff][\udc00-\udfff];  // any non-BMP character (hack for Java)
+
+// Here we use a non-greedy match to implement the
+// (non-regular) rules about raw string syntax.
+fragment RAW_STRING_BODY:
+    '"' RAW_CHAR*? '"'
+    | '#' RAW_STRING_BODY '#';
+
 StringLit:
-    '"' STRING_ELEMENT* '"';
+    '"' STRING_ELEMENT* '"'
+    | 'r' RAW_STRING_BODY;
 
 fragment BYTE:
     [ !#-&(-~]    // any ASCII character from 32 (space) to 126 (`~`), except 34 (`"`) and 39 (`'`)
