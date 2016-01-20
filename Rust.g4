@@ -80,12 +80,12 @@ self_param:
 method_param_list:
     (param | self_param) (',' param)* ','?;
 
-tm_param:
+trait_method_param:
     ('&' | '&&' | 'mut')? Ident ':' ty
     | ty;
 
 trait_method_param_list:
-    (tm_param | self_param) (',' tm_param)* ','?;
+    (trait_method_param | self_param) (',' trait_method_param)* ','?;
 
 rtype:
     '->' (ty | '!');
