@@ -79,7 +79,7 @@ param_list:
 
 self_param:
     'mut'? 'self' (':' ty)?
-    | '&' 'mut'? 'self';
+    | '&' Lifetime? 'mut'? 'self';
 
 method_param_list:
     (param | self_param) (',' param)* ','?;
