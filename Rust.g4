@@ -210,9 +210,14 @@ ty:
     | '[' ty (';' expr)? ']'
     | '&' Lifetime? 'mut'? ty
     | '&&' Lifetime? 'mut'? ty          // meaning `& & ty`
-    | for_lifetime? 'fn' '(' ty_list ')' rtype?
+    | '*' mut_or_const ty               // pointer type
+    | for_lifetime? 'unsafe'? abi? 'fn' '(' ty_list ')' rtype?
     | fn_trait
     | ty_path;
+
+mut_or_const:
+    'mut'
+    | 'const';
 
 for_lifetime:
     'for' '<' lifetime_def_list '>';
@@ -226,6 +231,9 @@ lifetime_bounds:
 
 lifetime_def_list:
     lifetime_def (',' lifetime_def)* ','?;
+
+abi:
+    'extern' StringLit?;
 
 ty_list:
     ty (',' ty)* ','?;
