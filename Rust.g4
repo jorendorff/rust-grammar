@@ -101,7 +101,7 @@ where_bound_list:
     where_bound (',' where_bound)* ','?;
 
 where_bound:
-    ty ':' ty_bound;
+    ty ':' ty_bounds;
 
 mod_decl_short:
     'mod' Ident ';';
@@ -152,7 +152,7 @@ trait_decl:
     'trait' Ident ty_params? trait_super? '{' trait_member* '}';
 
 trait_super:
-    ':' ty_list;
+    ':' ty_bounds;
 
 trait_member:
     'type' Ident ';'
@@ -237,7 +237,7 @@ lifetime_param_list:
     lifetime_param (',' lifetime_param)* ','?;
 
 ty_param:
-    Ident (':' ty_bound)?;
+    Ident (':' ty_bounds)?;
 
 ty_param_list:
     ty_param (',' ty_param)* ','?;
@@ -251,9 +251,9 @@ prim_ty_bound:
     | fn_trait
     | Lifetime;
 
-ty_bound:
+ty_bounds:
     prim_ty_bound
-    | ty_bound '+' prim_ty_bound;
+    | ty_bounds '+' prim_ty_bound;
 
 
 // Blocks and expressions
