@@ -171,25 +171,8 @@ tt:
 
 // Types and type parameters
 
-builtin_ty:
-    'bool'
-    | 'char'
-    | 'i8'
-    | 'u8'
-    | 'i16'
-    | 'u16'
-    | 'i32'
-    | 'u32'
-    | 'i64'
-    | 'u64'
-    | 'isize'
-    | 'usize'
-    | 'f32'
-    | 'f64';
-
 ty:
     '_'
-    | builtin_ty
     // The next 3 productions match exactly `'(' ty_list ')'`,
     // but (i32) and (i32,) are distinct types, so parse them with different rules.
     | '(' ')'                           // unit
@@ -263,11 +246,7 @@ ty_bound:
 // Blocks and expressions
 
 path:
-    path_prefix? path_init_segment ('::' path_segment)*;
-
-path_init_segment:
-    path_segment
-    | builtin_ty;
+    path_prefix? path_segment ('::' path_segment)*;
 
 path_prefix:
     '::'
@@ -581,52 +560,9 @@ field_pat:
 any_ident:
     Ident
     | 'Self'
-    | 'as'
-    | 'bool'
-    | 'break'
-    | 'char'
-    | 'const'
-    | 'continue'
-    | 'crate'
-    | 'else'
-    | 'enum'
-    | 'extern'
-    | 'f32'
-    | 'f64'
-    | 'false'
-    | 'fn'
-    | 'for'
-    | 'i16'
-    | 'i32'
-    | 'i64'
-    | 'i8'
-    | 'if'
-    | 'impl'
-    | 'in'
-    | 'isize'
-    | 'let'
-    | 'loop'
-    | 'match'
-    | 'mod'
-    | 'mut'
-    | 'pub'
-    | 'ref'
-    | 'return'
     | 'self'
-    | 'size'
-    | 'struct'
-    | 'super'
-    | 'trait'
-    | 'true'
-    | 'type'
-    | 'u16'
-    | 'u32'
-    | 'u64'
-    | 'u8'
-    | 'unsafe'
-    | 'use'
-    | 'usize'
-    | 'where';
+    | 'static'
+    | 'super';
 
 CashMoney:
     '$';
