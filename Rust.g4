@@ -61,10 +61,10 @@ fn_decl:
     'fn' Ident ty_params? '(' param_list? ')' rtype? where_clause? block;
 
 method_decl:
-    method_head block;
+    'fn' Ident ty_params? '(' method_param_list? ')' rtype? where_clause? block;
 
-method_head:
-    'fn' Ident ty_params? '(' method_param_list? ')' rtype? where_clause?;
+trait_method_decl:
+    'fn' Ident ty_params? '(' trait_method_param_list? ')' rtype? where_clause? (block | ';');
 
 param:
     pat ':' ty;
@@ -79,6 +79,13 @@ self_param:
 
 method_param_list:
     (param | self_param) (',' param)* ','?;
+
+tm_param:
+    ('&' | '&&' | 'mut')? Ident ':' ty
+    | ty;
+
+trait_method_param_list:
+    (tm_param | self_param) (',' tm_param)* ','?;
 
 rtype:
     '->' (ty | '!');
@@ -145,7 +152,7 @@ trait_super:
 
 trait_member:
     'type' Ident ';'
-    | method_head (block | ';');
+    | trait_method_decl;
 
 
 // Attributes
