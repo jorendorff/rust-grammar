@@ -188,6 +188,7 @@ ty:
     | '(' ty ',' ty_list ')'            // tuple
     | '[' ty (';' expr)? ']'
     | '&' Lifetime? 'mut'? ty
+    | '&&' Lifetime? 'mut'? ty          // should treat as `& & ty`
     | 'fn' '(' ty_list ')' rtype?
     | fn_trait
     | ty_path;
