@@ -7,10 +7,15 @@ mod_body:
     inner_attr* item*;
 
 item:
-    macro_use
+    attr* Ident '!' item_macro_tail
     | attr* 'pub'? pub_able_item
     | attr* 'extern' 'crate' Ident ('as' Ident)? ';'
     | 'impl' ty_params? ty impl_for? where_clause? '{' impl_item* '}';
+
+item_macro_tail:
+    Ident? tt_parens ';'
+    | Ident tt_brackets ';'
+    | Ident? tt_block;
 
 pub_able_item:
     use_decl
@@ -28,9 +33,13 @@ impl_for:
     'for' ty;
 
 impl_item:
-    attr* 'pub'? method_decl
-    | attr* 'type' Ident '=' ty ';'
-    | macro_use;
+    attr* 'pub'? impl_item_tail;
+
+impl_item_tail:
+    method_decl
+    | 'type' Ident '=' ty ';'
+    | Ident '!' tt_parens ';'
+    | Ident '!' tt_block;
 
 use_decl:
     'use' use_path ';';
@@ -170,15 +179,23 @@ inner_attr:
 
 // Macros and token trees
 
-macro_use:
-    Ident '!' tt tt?;
-
 tt:
     ~('(' | ')' | '{' | '}' | '[' | ']')
-    | '(' tt* ')'
-    | '{' tt* '}'
-    | '[' tt* ']';
+    | tt_delimited;
 
+tt_delimited:
+    tt_parens
+    | tt_brackets
+    | tt_block;
+
+tt_parens:
+    '(' tt* ')';
+
+tt_brackets:
+    '[' tt* ']';
+
+tt_block:
+    '{' tt* '}';
 
 
 // Types and type parameters
@@ -305,8 +322,15 @@ block_body:
 
 stmt:
     ';'
-    | 'let' pat (':' ty)? ('=' expr)? ';'
+    | attr* stmt_tail;
+
+stmt_tail:
+    'let' pat (':' ty)? ('=' expr)? ';'
     | item
+    | Ident '!' Ident tt_parens ';'
+    | Ident '!' Ident tt_brackets ';'
+    | Ident '!' Ident tt_block
+    | Ident '!' tt_delimited
     | blocky_expr
     | expr ';';
 
@@ -368,8 +392,7 @@ closure_tail:
     | expr;
 
 prim_expr_no_struct:
-    macro_use
-    | path
+    path macro_tail?
     | 'self'
     | lit
     // The next 3 productions match exactly `'(' expr_list ')'`,
@@ -384,6 +407,9 @@ prim_expr_no_struct:
     | 'continue' Lifetime?
     | 'return' expr?  // this is IMO a rustc bug, should be expr_no_struct
     | closure_params closure_tail;
+
+macro_tail:
+    '!' tt_delimited;
 
 prim_expr:
     path '{' fields? '}'
@@ -556,10 +582,10 @@ expr_no_struct:
 // Patterns
 
 pat:
-    macro_use
+    '_'
     | lit
     | lit '...' lit
-    | '_'
+    | Ident macro_tail
     | 'ref'? 'mut'? Ident ('@' pat)?
     | path '(' enum_tuple_field_pats ')'
     | path '{' enum_struct_field_pats? '}'
