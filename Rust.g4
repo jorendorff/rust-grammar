@@ -230,7 +230,6 @@ ty:
     | '&&' Lifetime? 'mut'? ty          // meaning `& & ty`
     | '*' mut_or_const ty               // pointer type
     | for_lifetime? 'unsafe'? abi? 'fn' '(' ty_list ')' rtype?
-    | fn_trait
     | ty_path;
 
 mut_or_const:
@@ -256,15 +255,16 @@ abi:
 ty_list:
     ty (',' ty)* ','?;
 
-fn_trait:
-    for_lifetime? ty_path '(' ty_list? ')' rtype?;  // BUG: ty_path is too permissive
-
 ty_path:
-    path_prefix? ty_path_segment ('::' ty_path_segment)*;
+    for_lifetime? '::'? ty_path_rel;
+
+ty_path_rel:
+    (Ident | 'Self') '(' ty_list? ')' rtype?
+    | ty_path_segment
+    | ty_path_segment '::' ty_path_rel;
 
 ty_path_segment:
-    'Self'
-    | Ident ty_args?;
+    (Ident | 'Self') ty_args?;
 
 ty_args:
     '<' lifetime_list '>'
@@ -309,7 +309,6 @@ lifetime_bound:
 prim_ty_bound:
     ty_path
     | '?' ty_path
-    | fn_trait
     | Lifetime;
 
 ty_bounds:
