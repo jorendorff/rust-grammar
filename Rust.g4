@@ -185,11 +185,11 @@ tt:
 
 ty:
     '_'
-    // The next 3 productions match exactly `'(' ty_list ')'`,
+    // The next 3 productions match exactly `'(' ty_sum_list? ')'`,
     // but (i32) and (i32,) are distinct types, so parse them with different rules.
     | '(' ')'                           // unit
-    | '(' ty ')'                        // grouping (parens are ignored)
-    | '(' ty ',' ty_list ')'            // tuple
+    | '(' ty_sum ')'                    // grouping (parens are ignored)
+    | '(' ty_sum ',' ty_sum_list ')'    // tuple
     | '[' ty (';' expr)? ']'
     | '&' Lifetime? 'mut'? ty
     | '&&' Lifetime? 'mut'? ty          // should treat as `& & ty`
@@ -214,14 +214,18 @@ ty_args:
     '<' lifetime_list '>'
     | '<' (Lifetime ',')* ty_arg_list '>';
 
-ty_arg_list:
-    ty_arg (',' ty_arg)* ','?;
+ty_sum:
+    ty ('+' ty_bounds)?;
+
+ty_sum_list:
+    ty_sum (',' ty_sum)* ','?;
 
 ty_arg:
-    ty ('+' ty_bound)?  // BUG - This very weird line means "match either a type
-                        // or a type bound that does not start with a lifetime".
-                        // I don't think it's possible this is right.
-    | Ident '=' ty;
+    Ident '=' ty
+    | ty_sum;
+
+ty_arg_list:
+    ty_arg (',' ty_arg)* ','?;
 
 ty_params:
     '<' lifetime_param_list '>'
