@@ -192,7 +192,7 @@ ty:
     | '(' ty_sum ',' ty_sum_list ')'    // tuple
     | '[' ty (';' expr)? ']'
     | '&' Lifetime? 'mut'? ty
-    | '&&' Lifetime? 'mut'? ty          // should treat as `& & ty`
+    | '&&' Lifetime? 'mut'? ty          // meaning `& & ty`
     | for_lifetime? 'fn' '(' ty_list ')' rtype?
     | fn_trait
     | ty_path;
@@ -415,6 +415,7 @@ pre_expr:
     | '-' pre_expr
     | '!' pre_expr
     | '&' 'mut'? pre_expr
+    | '&&' 'mut'? pre_expr   // meaning `& & expr`
     | '*' pre_expr;
 
 cast_expr:
@@ -489,6 +490,7 @@ pre_expr_no_struct:
     | '-' pre_expr_no_struct
     | '!' pre_expr_no_struct
     | '&' 'mut'? pre_expr_no_struct
+    | '&&' 'mut'? pre_expr_no_struct    // meaning `& & expr`
     | '*' pre_expr_no_struct;
 
 cast_expr_no_struct:
@@ -565,7 +567,8 @@ pat:
     | '(' ')'
     | '(' pat ')'
     | '(' pat ',' pat_list? ')'
-    | '&' pat;
+    | '&' pat
+    | '&&' pat;   // meaning `& & pat`
 
 pat_list:
     pat (',' pat)* ','?;
