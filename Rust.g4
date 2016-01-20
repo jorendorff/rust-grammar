@@ -319,16 +319,14 @@ ty_bounds:
 // Blocks and expressions
 
 path:
-    path_prefix? path_segment ('::' path_segment)*;
-
-path_prefix:
-    '::'
-    | 'self' '::'
-    | 'super' '::';
+    '::'? path_segment ('::' path_segment)*;
 
 path_segment:
+    simple_path_segment ('::' ty_args)?;
+
+simple_path_segment:
     Ident
-    | Ident '::' ty_args;
+    | 'Self';
 
 block: '{' block_body '}';
 
