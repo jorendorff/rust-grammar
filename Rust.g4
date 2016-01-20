@@ -143,7 +143,7 @@ mod_decl:
     'mod' Ident '{' mod_body '}';
 
 struct_decl:
-    'struct' Ident ty_params? struct_tail;
+    'struct' Ident ty_params? where_clause? struct_tail;
 
 struct_tail:
     ';'
