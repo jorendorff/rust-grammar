@@ -699,3 +699,15 @@ BlockComment:
     '/*' (~[*/] | '/'* BlockComment | '/'+ (~[*/]) | '*'+ ~[*/])* '*'+ '/' -> skip;
 
 // BUG: doc comments are ignored
+// BUG: byte-string constants are not supported
+// BUG: not all string constant forms are supported
+// BUG: `unsafe trait` items are not supported
+// BUG: `unsafe impl` is not supported
+// BUG: `unsafe fn` is not supported
+// BUG: `impl !Send` is not supported
+// BUG: `const fn` items are not supported
+// BUG: `extern fn` items are not supported
+// BUG: `extern "system" {...}` blocks are not supported
+// BUG: `static mut` is not supported
+// BUG: '?Sized` bound is not supported
+// BUG: pointer types are not supported
