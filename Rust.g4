@@ -77,9 +77,8 @@ param_list:
     param (',' param)* ','?;
 
 self_param:
-    'self'
-    | '&' 'self'
-    | '&' 'mut' 'self';
+    'mut'? 'self' (':' ty)?
+    | '&' 'mut'? 'self';
 
 method_param_list:
     (param | self_param) (',' param)* ','?;
