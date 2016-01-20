@@ -701,9 +701,13 @@ BlockComment:
 // BUG: doc comments are ignored
 // BUG: byte-string constants are not supported
 // BUG: not all string constant forms are supported
+// BUG: paths and type paths starting with `<`, like `<Vec<i32>>::new`
+//      and `<Frog as Animal>::move`, are not supported,
+//      much less paths starting with `<<`
 // BUG: `unsafe trait` items are not supported
 // BUG: `unsafe impl` is not supported
 // BUG: `unsafe fn` is not supported
+// BUG: bounds like `?Send` are not supported
 // BUG: `impl !Send` is not supported
 // BUG: `const fn` items are not supported
 // BUG: `extern fn` items are not supported
