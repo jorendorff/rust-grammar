@@ -272,15 +272,28 @@ ty_list:
     ty (',' ty)* ','?;
 
 ty_path:
-    for_lifetime? '::'? ty_path_rel;
+    for_lifetime? ty_path_main;
 
-ty_path_rel:
+ty_path_main:
+    ty_path_tail
+    | ty_path_parent? '::' ty_path_tail;
+
+ty_path_segment_no_super:
+    (Ident | 'Self') ty_args?;
+
+ty_path_tail:
     (Ident | 'Self') '(' ty_list? ')' rtype?
-    | ty_path_segment
-    | ty_path_segment '::' ty_path_rel;
+    | ty_path_segment_no_super;
 
 ty_path_segment:
-    (Ident | 'Self') ty_args?;
+    ty_path_segment_no_super
+    | 'super';
+
+ty_path_parent:
+    'self'
+    | ty_path_segment
+    | '::' ty_path_segment
+    | ty_path_parent '::' ty_path_segment;
 
 ty_args:
     '<' lifetime_list '>'
