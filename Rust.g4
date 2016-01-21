@@ -291,9 +291,13 @@ ty_path_segment:
 
 ty_path_parent:
     'self'
+    | '<' ty as_trait? '>'
     | ty_path_segment
     | '::' ty_path_segment
     | ty_path_parent '::' ty_path_segment;
+
+as_trait:
+    'as' ty;
 
 ty_args:
     '<' lifetime_list '>'
@@ -346,13 +350,18 @@ bound:
 // This is very slightly different from the syntax read by rustc:
 // whitespace is permitted after `self` and `super` in paths.
 //
-// In rustc, `self::x` is an acceptable path, but `self :: x` is not, because
-// `self` is a strict keyword except when followed immediately by the exact
-// characters `::`. Same goes for `super`. Pretty weird.
+// In rustc, `self::x` is an acceptable path, but `self :: x` is not,
+// because `self` is a strict keyword except when followed immediately
+// by the exact characters `::`. Same goes for `super`. Pretty weird.
 //
-// So instead, this grammar accepts that `self` is a keyword, and permits it
-// specially at the very front of a path. Whitespace is ignored. `super` is OK
-// anywhere except at the end.
+// So instead, this grammar accepts that `self` is a keyword, and
+// permits it specially at the very front of a path. Whitespace is
+// ignored. `super` is OK anywhere except at the end.
+//
+// Separately and more tentatively: in rustc, qualified paths are
+// permitted in peculiarly constrained contexts. In this grammar,
+// qualified paths are just part of the syntax of paths (for now -
+// this is not clearly an OK change).
 
 path:
     path_segment_no_super
@@ -360,6 +369,7 @@ path:
 
 path_parent:
     'self'
+    | '<' ty as_trait? '>'
     | path_segment
     | '::' path_segment
     | path_parent '::' path_segment;
@@ -810,9 +820,6 @@ BlockComment:
 
 // BUG: doc comments are ignored
 // BUG: not all string constant forms are supported
-// BUG: paths and type paths starting with `<`, like `<Vec<i32>>::new`
-//      and `<Frog as Animal>::move`, are not supported,
-//      much less paths starting with `<<`
 // BUG: `impl !Send` is not supported
 // BUG, probably: if `for <'a> 'a` is a legal bound, it's not supported
 // BUG: associated constants are not supported
