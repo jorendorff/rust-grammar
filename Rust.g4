@@ -98,8 +98,15 @@ method_decl:
 trait_method_decl:
     fn_head '(' trait_method_param_list? ')' rtype? where_clause? (block | ';');
 
+// Parts of a `fn` definition up to the type parameters.
+//
+// `const` and `extern` are incompatible on a `fn`, but this grammar
+// does not rule it out, holding that in a hypothetical Rust language
+// specification, it would be clearer to specify this as a semantic
+// rule, not a syntactic one. That is, not every rule that can be
+// enforced gramatically should be.
 fn_head:
-    'unsafe'? 'fn' Ident ty_params?;
+    'const'? 'unsafe'? abi? 'fn' Ident ty_params?;
 
 param:
     pat ':' ty;
@@ -803,9 +810,6 @@ BlockComment:
 // BUG: associated constants are not supported
 // BUG: `unsafe trait` items are not supported
 // BUG: `unsafe impl` is not supported
-// BUG: `unsafe fn` is not supported
-// BUG: `const fn` items are not supported
-// BUG: `extern fn` items are not supported
 // BUG: variadic foreign functions are not supported
 // BUG: `static mut` is not supported
 // BUG: '?Sized` bound is not supported
