@@ -1,6 +1,7 @@
 grammar Rust;
 
 // === Paths
+// (forward references: ty_sum, ty_args)
 
 // This is very slightly different from the syntax read by rustc:
 // whitespace is permitted after `self` and `super` in paths.
@@ -29,6 +30,9 @@ path_parent:
     | '::' path_segment
     | path_parent '::' path_segment;
 
+as_trait:
+    'as' ty;
+
 path_segment:
     path_segment_no_super
     | 'super';
@@ -39,6 +43,48 @@ path_segment_no_super:
 simple_path_segment:
     Ident
     | 'Self';
+
+
+// === Type paths
+// (forward references: ty_list, rtype, ty_sum, ty_args)
+
+ty_path:
+    for_lifetime? ty_path_main;
+
+for_lifetime:
+    'for' '<' lifetime_def_list '>';
+
+lifetime_def_list:
+    lifetime_def (',' lifetime_def)* ','?;
+
+lifetime_def:
+    Lifetime (':' lifetime_bound)?;
+
+lifetime_bound:
+    Lifetime
+    | lifetime_bound '+' Lifetime;
+
+ty_path_main:
+    ty_path_tail
+    | ty_path_parent? '::' ty_path_tail;
+
+ty_path_tail:
+    (Ident | 'Self') '(' ty_list? ')' rtype?
+    | ty_path_segment_no_super;
+
+ty_path_parent:
+    'self'
+    | '<' ty_sum as_trait? '>'
+    | ty_path_segment
+    | '::' ty_path_segment
+    | ty_path_parent '::' ty_path_segment;
+
+ty_path_segment:
+    ty_path_segment_no_super
+    | 'super';
+
+ty_path_segment_no_super:
+    (Ident | 'Self') ty_args?;
 
 
 // === Items
@@ -314,52 +360,11 @@ mut_or_const:
     'mut'
     | 'const';
 
-for_lifetime:
-    'for' '<' lifetime_def_list '>';
-
-lifetime_def:
-    Lifetime (':' lifetime_bound)?;
-
-lifetime_bound:
-    Lifetime
-    | lifetime_bound '+' Lifetime;
-
-lifetime_def_list:
-    lifetime_def (',' lifetime_def)* ','?;
-
 abi:
     'extern' StringLit?;
 
 ty_list:
     ty (',' ty)* ','?;
-
-ty_path:
-    for_lifetime? ty_path_main;
-
-ty_path_main:
-    ty_path_tail
-    | ty_path_parent? '::' ty_path_tail;
-
-ty_path_segment_no_super:
-    (Ident | 'Self') ty_args?;
-
-ty_path_tail:
-    (Ident | 'Self') '(' ty_list? ')' rtype?
-    | ty_path_segment_no_super;
-
-ty_path_segment:
-    ty_path_segment_no_super
-    | 'super';
-
-ty_path_parent:
-    'self'
-    | '<' ty_sum as_trait? '>'
-    | ty_path_segment
-    | '::' ty_path_segment
-    | ty_path_parent '::' ty_path_segment;
-
-as_trait:
-    'as' ty;
 
 ty_args:
     '<' lifetime_list '>'
@@ -856,3 +861,5 @@ BlockComment:
 // BUG: doc comments are ignored
 // BUG: associated constants are not supported
 // BUG: variadic foreign functions are not supported
+// BUG: probably most places that use `ty` and `ty_list` are wrong,
+//      and should use `ty_sum` and `ty_sum_list`
