@@ -90,7 +90,7 @@ type_decl:
     'type' Ident ty_params? '=' ty ';';
 
 static_decl:
-    'static' Ident ':' ty '=' expr ';';
+    'static' 'mut'? Ident ':' ty '=' expr ';';
 
 const_decl:
     'const' Ident ':' ty '=' expr ';';
@@ -844,4 +844,3 @@ BlockComment:
 // BUG: doc comments are ignored
 // BUG: associated constants are not supported
 // BUG: variadic foreign functions are not supported
-// BUG: `static mut` is not supported
