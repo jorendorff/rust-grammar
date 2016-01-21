@@ -114,6 +114,30 @@ ty_path_segment_no_super:
     (Ident | 'Self') ty_args?;
 
 
+// === Type bounds
+
+where_clause:
+    'where' where_bound_list;
+
+where_bound_list:
+    where_bound (',' where_bound)* ','?;
+
+where_bound:
+    for_lifetime? ty colon_bound;
+
+colon_bound:
+    ':' bound;
+
+bound:
+    prim_bound
+    | bound '+' prim_bound;
+
+prim_bound:
+    ty_path
+    | '?' ty_path
+    | Lifetime;
+
+
 // === Types and type parameters
 
 ty:
@@ -175,15 +199,6 @@ ty_param:
 
 ty_param_list:
     ty_param (',' ty_param)* ','?;
-
-prim_bound:
-    ty_path
-    | '?' ty_path
-    | Lifetime;
-
-bound:
-    prim_bound
-    | bound '+' prim_bound;
 
 
 // === Items
@@ -330,18 +345,6 @@ trait_method_param_list:
 
 rtype:
     '->' (ty | '!');
-
-where_clause:
-    'where' where_bound_list;
-
-where_bound_list:
-    where_bound (',' where_bound)* ','?;
-
-where_bound:
-    for_lifetime? ty colon_bound;
-
-colon_bound:
-    ':' bound;
 
 mod_decl_short:
     'mod' Ident ';';
@@ -860,3 +863,5 @@ BlockComment:
 // BUG: variadic foreign functions are not supported
 // BUG: probably most places that use `ty` and `ty_list` are wrong,
 //      and should use `ty_sum` and `ty_sum_list`
+// BUG: `ty_sum` does not include `?Send` but should
+// BUG: look into unifying `ty_sum` and `bound`
