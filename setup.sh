@@ -15,5 +15,5 @@ function gbuild {
 }
 
 function gcheck {
-    find ../rust/src/libsyntax -name '*.rs' | java ParserDriver
+    find ../rust/src/libcore -name '*.rs' | java ParserDriver
 }
