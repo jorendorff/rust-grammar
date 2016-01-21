@@ -26,6 +26,9 @@ tt_brackets:
 tt_block:
     '{' tt* '}';
 
+macro_tail:
+    '!' tt_delimited;
+
 
 // === Paths
 // (forward references: ty_sum, ty_args)
@@ -199,6 +202,54 @@ ty_param:
 
 ty_param_list:
     ty_param (',' ty_param)* ','?;
+
+
+// === Patterns
+
+pat:
+    pat_no_mut
+    | 'mut' Ident ('@' pat)?;
+
+// A `pat_no_mut` is a pattern that does not start with `mut`.
+// It is distinct from `pat` to rule out ambiguity in parsing the
+// pattern `&mut x`, which must parse like `&mut (x)`, not `&(mut x)`.
+pat_no_mut:
+    '_'
+    | pat_lit
+    | pat_lit '...' pat_lit
+    | 'ref'? Ident ('@' pat)?
+    | 'ref' 'mut' Ident ('@' pat)?
+    | Ident macro_tail
+    | path '(' pat_list_with_dots ')'
+    | path '{' enum_struct_field_pats? '}'
+    | path
+    | '(' ')'
+    | '(' pat ')'
+    | '(' pat ',' pat_list? ')'
+    | '[' pat_list_with_dots? ']'
+    | '&' pat_no_mut
+    | '&' 'mut' pat
+    | '&&' pat_no_mut   // `&& pat` means the same as `& & pat`
+    | '&&' 'mut' pat
+    | 'box' pat;
+
+pat_lit:
+    '-'? lit;
+
+pat_list:
+    pat (',' pat)* ','?;
+
+pat_list_with_dots:
+    '..'
+    | pat (',' pat)* (',' '..' | ','?);
+
+enum_struct_field_pats:
+    '..'
+    | field_pat (',' field_pat)* (',' '..' | ','?);
+
+field_pat:
+    'mut'? 'ref'? Ident
+    | Ident ':' pat;
 
 
 // === Items
@@ -523,9 +574,6 @@ prim_expr_no_struct:
     | 'return' expr?  // this is IMO a rustc bug, should be expr_no_struct
     | 'move'? closure_params closure_tail;
 
-macro_tail:
-    '!' tt_delimited;
-
 prim_expr:
     path '{' fields? '}'
     | prim_expr_no_struct;
@@ -694,58 +742,7 @@ expr_no_struct:
     assign_expr_no_struct;
 
 
-
-
-// Patterns
-
-pat_lit:
-    '-'? lit;
-
-// A `pat_no_mut` is a pattern that does not start with `mut`.
-// It is distinct from `pat` to rule out ambiguity in parsing the
-// pattern `&mut x`, which must parse like `&mut (x)`, not `&(mut x)`.
-pat_no_mut:
-    '_'
-    | pat_lit
-    | pat_lit '...' pat_lit
-    | 'ref'? Ident ('@' pat)?
-    | 'ref' 'mut' Ident ('@' pat)?
-    | Ident macro_tail
-    | path '(' pat_list_with_dots ')'
-    | path '{' enum_struct_field_pats? '}'
-    | path
-    | '(' ')'
-    | '(' pat ')'
-    | '(' pat ',' pat_list? ')'
-    | '[' pat_list_with_dots? ']'
-    | '&' pat_no_mut
-    | '&' 'mut' pat
-    | '&&' pat_no_mut   // `&& pat` means the same as `& & pat`
-    | '&&' 'mut' pat
-    | 'box' pat;
-
-pat:
-    pat_no_mut
-    | 'mut' Ident ('@' pat)?;
-
-pat_list:
-    pat (',' pat)* ','?;
-
-pat_list_with_dots:
-    '..'
-    | pat (',' pat)* (',' '..' | ','?);
-
-enum_struct_field_pats:
-    '..'
-    | field_pat (',' field_pat)* (',' '..' | ','?);
-
-field_pat:
-    'mut'? 'ref'? Ident
-    | Ident ':' pat;
-
-
-
-// Tokens
+// === Tokens
 
 any_ident:
     Ident
@@ -866,3 +863,4 @@ BlockComment:
 //      and should use `ty_sum` and `ty_sum_list`
 // BUG: `ty_sum` does not include `?Send` but should
 // BUG: look into unifying `ty_sum` and `bound`
+// BUG: rename `lit` -> `literal`
