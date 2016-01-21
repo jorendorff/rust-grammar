@@ -153,12 +153,12 @@ mod_decl:
     'mod' Ident '{' mod_body '}';
 
 struct_decl:
-    'struct' Ident ty_params? where_clause? struct_tail;
+    'struct' Ident ty_params? struct_tail;
 
 struct_tail:
-    ';'
-    | '(' tuple_struct_field_list ')' ';'
-    | '{' field_decl_list '}';
+    where_clause? ';'
+    | '(' tuple_struct_field_list ')' where_clause? ';'
+    | where_clause? '{' field_decl_list '}';
 
 tuple_struct_field:
     attr* 'pub'? ty;
