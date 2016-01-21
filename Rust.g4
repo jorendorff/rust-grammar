@@ -700,12 +700,13 @@ pat_no_mut:
     | 'ref'? Ident ('@' pat)?
     | 'ref' 'mut' Ident ('@' pat)?
     | Ident macro_tail
-    | path '(' enum_tuple_field_pats ')'
+    | path '(' pat_list_with_dots ')'
     | path '{' enum_struct_field_pats? '}'
     | path
     | '(' ')'
     | '(' pat ')'
     | '(' pat ',' pat_list? ')'
+    | '[' pat_list_with_dots? ']'
     | '&' pat_no_mut
     | '&' 'mut' pat
     | '&&' pat_no_mut   // `&& pat` means the same as `& & pat`
@@ -719,7 +720,7 @@ pat:
 pat_list:
     pat (',' pat)* ','?;
 
-enum_tuple_field_pats:
+pat_list_with_dots:
     '..'
     | pat (',' pat)* (',' '..' | ','?);
 
