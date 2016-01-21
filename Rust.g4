@@ -865,13 +865,14 @@ ByteStringLit:
     'b"' BYTE_STRING_ELEMENT* '"'
     | 'br' RAW_BYTE_STRING_BODY;
 
-BareIntLit:
-    '0'
-    | [1-9][0-9]*;
-
 fragment DEC_DIGITS:
-    '0' '_'*
-    | [1-9][0-9_]*;
+    [0-9][0-9_]*;
+
+// BareIntLit and FullIntLit both match '123'; BareIntLit wins by virtue of
+// appearing first in the file. (This comment is to point out the dependency on
+// a less-than-obvious ANTLR rule.)
+BareIntLit:
+    DEC_DIGITS;
 
 fragment INT_SUFFIX:
     [ui] ('8'|'16'|'32'|'64'|'size');
