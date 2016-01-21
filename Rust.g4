@@ -547,7 +547,8 @@ pre_expr:
     | '!' pre_expr
     | '&' 'mut'? pre_expr
     | '&&' 'mut'? pre_expr   // meaning `& & expr`
-    | '*' pre_expr;
+    | '*' pre_expr
+    | 'box' pre_expr;
 
 cast_expr:
     pre_expr
