@@ -709,7 +709,8 @@ pat_no_mut:
     | '&' pat_no_mut
     | '&' 'mut' pat
     | '&&' pat_no_mut   // `&& pat` means the same as `& & pat`
-    | '&&' 'mut' pat;
+    | '&&' 'mut' pat
+    | 'box' pat;
 
 pat:
     pat_no_mut
