@@ -511,7 +511,7 @@ prim_expr_no_struct:
     | 'break' Lifetime?
     | 'continue' Lifetime?
     | 'return' expr?  // this is IMO a rustc bug, should be expr_no_struct
-    | closure_params closure_tail;
+    | 'move'? closure_params closure_tail;
 
 macro_tail:
     '!' tt_delimited;
