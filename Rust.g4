@@ -178,14 +178,21 @@ enum_decl:
 enum_variant:
     attr* enum_variant_main;
 
+enum_variant_list:
+    enum_variant (',' enum_variant)* ','?;
+
 enum_variant_main:
-    Ident '(' ty_list ')'
+    Ident '(' enum_tuple_field_list ')'
     | Ident '{' enum_field_decl_list '}'
     | Ident '=' expr
     | Ident;
 
-enum_variant_list:
-    enum_variant (',' enum_variant)* ','?;
+// enum variants that are tuple-struct-like can't have `pub` on individual fields.
+enum_tuple_field:
+    attr* ty;
+
+enum_tuple_field_list:
+    enum_tuple_field (',' enum_tuple_field)* ','?;
 
 // enum variants that are struct-like can't have `pub` on individual fields.
 enum_field_decl:
