@@ -8,7 +8,7 @@ mod_body:
 
 item:
     attr* 'pub'? pub_able_item
-    | attr* 'unsafe'? 'impl' ty_params? ty impl_for? where_clause? '{' impl_item* '}'
+    | attr* impl_block
     | attr* item_macro_use;
 
 item_macro_use:
@@ -33,8 +33,14 @@ pub_able_item:
     | enum_decl
     | trait_decl;
 
-impl_for:
-    'for' ty;
+impl_block:
+    'unsafe'? 'impl' ty_params? impl_what where_clause? '{' impl_item* '}';
+
+impl_what:
+    '!' ty 'for' ty
+    | ty 'for' ty
+    | ty 'for' '..'
+    | ty;
 
 impl_item:
     attr* 'pub'? impl_item_tail;
@@ -836,7 +842,6 @@ BlockComment:
     '/*' (~[*/] | '/'* BlockComment | '/'+ (~[*/]) | '*'+ ~[*/])* '*'+ '/' -> skip;
 
 // BUG: doc comments are ignored
-// BUG: `impl !Send` is not supported
 // BUG, probably: if `for <'a> 'a` is a legal bound, it's not supported
 // BUG: associated constants are not supported
 // BUG: variadic foreign functions are not supported
