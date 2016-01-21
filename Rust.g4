@@ -192,7 +192,7 @@ enum_field_decl_list:
     enum_field_decl (',' enum_field_decl)* ','?;
 
 trait_decl:
-    'trait' Ident ty_params? colon_bound? '{' trait_item* '}';
+    'unsafe'? 'trait' Ident ty_params? colon_bound? '{' trait_item* '}';
 
 colon_bound:
     ':' bound;
