@@ -834,8 +834,13 @@ StringLit:
     | 'r' RAW_STRING_BODY;
 
 fragment BYTE:
-    [ !#-&(-[\]-~]    // any ASCII character from 32 (space) to 126 (`~`),
-                      // except 34 (double quote), 39 (single quote), and 92 (backslash)
+    ' '               // any ASCII character from 32 (space) to 126 (`~`),
+    | '!'             // except 34 (double quote), 39 (single quote), and 92 (backslash)
+    | [#-&]
+    | [(-[]
+    | ']'
+    | '^'
+    | [_-~]
     | SIMPLE_ESCAPE
     | '\\x' [0-9a-fA-F][0-9a-fA-F];
 
