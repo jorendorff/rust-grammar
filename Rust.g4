@@ -1,5 +1,244 @@
 grammar Rust;
 
+
+// === Modules and items
+
+crate:
+    mod_body EOF;
+
+mod_body:
+    inner_attr* item*;
+
+item:
+    attr* 'pub'? pub_item
+    | attr* impl_block
+    | attr* item_macro_use;
+
+pub_item:
+    extern_crate     // `pub extern crate` is deprecated but still allowed
+    | use_decl
+    | mod_decl_short
+    | mod_decl
+    | extern_mod
+    | static_decl
+    | const_decl
+    | fn_decl
+    | type_decl
+    | struct_decl
+    | enum_decl
+    | trait_decl;
+
+item_macro_use:
+    Ident '!' item_macro_tail;
+
+item_macro_tail:
+    Ident? tt_parens ';'
+    | Ident tt_brackets ';'
+    | Ident? tt_block;
+
+
+// --- extern crate
+
+extern_crate:
+    'extern' 'crate' Ident rename? ';';
+
+
+// --- use declarations
+
+use_decl:
+    'use' use_path ';';
+
+use_path:
+    '::'? '{' use_item_list '}'
+    | '::'? any_ident ('::' any_ident)* use_suffix?;
+
+use_suffix:
+    '::' '*'
+    | '::' '{' use_item_list '}'
+    | rename;
+
+use_item:
+    any_ident rename?;
+
+use_item_list:
+    use_item (',' use_item)* ','?;
+
+rename:
+    'as' Ident;
+
+
+// --- Modules
+
+mod_decl_short:
+    'mod' Ident ';';
+
+mod_decl:
+    'mod' Ident '{' mod_body '}';
+
+
+// --- Foreign modules
+
+extern_mod:
+    extern_abi '{' inner_attr* foreign_item* '}';
+
+foreign_item:
+    attr* 'pub'? foreign_item_tail
+    | attr* item_macro_use;
+
+foreign_item_tail:
+    'static' 'mut'? Ident ':' ty_sum ';'
+    | fn_head '(' param_list? ')' rtype? where_clause? ';';
+
+
+// --- static and const declarations
+
+static_decl:
+    'static' 'mut'? Ident ':' ty '=' expr ';';
+
+const_decl:
+    'const' Ident ':' ty '=' expr ';';
+
+
+// --- Functions
+
+fn_decl:
+    fn_head '(' param_list? ')' rtype? where_clause? block_with_inner_attrs;
+
+method_decl:
+    fn_head '(' method_param_list? ')' rtype? where_clause? block_with_inner_attrs;
+
+trait_method_decl:
+    fn_head '(' trait_method_param_list? ')' rtype? where_clause? (block_with_inner_attrs | ';');
+
+// Parts of a `fn` definition up to the type parameters.
+//
+// `const` and `extern` are incompatible on a `fn`, but this grammar
+// does not rule it out, holding that in a hypothetical Rust language
+// specification, it would be clearer to specify this as a semantic
+// rule, not a syntactic one. That is, not every rule that can be
+// enforced gramatically should be.
+fn_head:
+    'const'? 'unsafe'? extern_abi? 'fn' Ident ty_params?;
+
+param:
+    pat ':' ty;
+
+param_list:
+    param (',' param)* ','?;
+
+self_param:
+    'mut'? 'self' (':' ty)?
+    | '&' Lifetime? 'mut'? 'self';
+
+method_param_list:
+    (param | self_param) (',' param)* ','?;
+
+// Argument names are optional in traits. The ideal grammar here would be
+// `(pat ':')? ty`, but parsing this would be unreasonably complicated.
+// Instead, the `pat` is restricted to a few short, simple cases.
+trait_method_param:
+    restricted_pat ':' ty
+    | ty;
+
+restricted_pat:
+    ('&' | '&&' | 'mut')? ('_' | Ident);
+
+trait_method_param_list:
+    (trait_method_param | self_param) (',' trait_method_param)* ','?;
+
+rtype:
+    '->' (ty | '!');
+
+
+// --- type, struct, and enum declarations
+
+type_decl:
+    'type' Ident ty_params? '=' ty ';';
+
+struct_decl:
+    'struct' Ident ty_params? struct_tail;
+
+struct_tail:
+    where_clause? ';'
+    | '(' tuple_struct_field_list ')' where_clause? ';'
+    | where_clause? '{' field_decl_list '}';
+
+tuple_struct_field:
+    attr* 'pub'? ty;
+
+tuple_struct_field_list:
+    tuple_struct_field (',' tuple_struct_field)* ','?;
+
+field_decl:
+    attr* 'pub'? Ident ':' ty;
+
+field_decl_list:
+    field_decl (',' field_decl)* ','?;
+
+enum_decl:
+    'enum' Ident ty_params? '{' enum_variant_list? '}';
+
+enum_variant:
+    attr* enum_variant_main;
+
+enum_variant_list:
+    enum_variant (',' enum_variant)* ','?;
+
+enum_variant_main:
+    Ident '(' enum_tuple_field_list ')'
+    | Ident '{' enum_field_decl_list '}'
+    | Ident '=' expr
+    | Ident;
+
+// enum variants that are tuple-struct-like can't have `pub` on individual fields.
+enum_tuple_field:
+    attr* ty;
+
+enum_tuple_field_list:
+    enum_tuple_field (',' enum_tuple_field)* ','?;
+
+// enum variants that are struct-like can't have `pub` on individual fields.
+enum_field_decl:
+    Ident ':' ty;
+
+enum_field_decl_list:
+    enum_field_decl (',' enum_field_decl)* ','?;
+
+
+// --- Traits
+
+trait_decl:
+    'unsafe'? 'trait' Ident ty_params? colon_bound? '{' trait_item* '}';
+
+trait_item:
+    attr* 'type' Ident colon_bound? ty_default? ';'
+    | attr* trait_method_decl;
+
+ty_default:
+    '=' ty;
+
+
+// --- impl blocks
+
+impl_block:
+    'unsafe'? 'impl' ty_params? impl_what where_clause? '{' impl_item* '}';
+
+impl_what:
+    '!' ty_sum 'for' ty_sum
+    | ty_sum 'for' ty_sum
+    | ty_sum 'for' '..'
+    | ty_sum;
+
+impl_item:
+    attr* 'pub'? impl_item_tail;
+
+impl_item_tail:
+    method_decl
+    | 'type' Ident '=' ty ';'
+    | Ident '!' tt_parens ';'
+    | Ident '!' tt_block;
+
+
 // === Attributes and token trees
 
 attr:
@@ -154,14 +393,14 @@ ty:
     | '&' Lifetime? 'mut'? ty
     | '&&' Lifetime? 'mut'? ty          // meaning `& & ty`
     | '*' mut_or_const ty               // pointer type
-    | for_lifetime? 'unsafe'? abi? 'fn' '(' trait_method_param_list? ')' rtype?
+    | for_lifetime? 'unsafe'? extern_abi? 'fn' '(' trait_method_param_list? ')' rtype?
     | ty_path;
 
 mut_or_const:
     'mut'
     | 'const';
 
-abi:
+extern_abi:
     'extern' StringLit?;
 
 ty_list:
@@ -252,218 +491,19 @@ pat_field:
     | Ident ':' pat;
 
 
-// === Items
+// === Expressions
 
-crate:
-    mod_body EOF;
+expr:
+    assign_expr;
 
-mod_body:
-    inner_attr* item*;
+expr_no_struct:
+    assign_expr_no_struct;
 
-item:
-    attr* 'pub'? pub_able_item
-    | attr* impl_block
-    | attr* item_macro_use;
-
-item_macro_use:
-    Ident '!' item_macro_tail;
-
-item_macro_tail:
-    Ident? tt_parens ';'
-    | Ident tt_brackets ';'
-    | Ident? tt_block;
-
-pub_able_item:
-    use_decl
-    | extern_crate  // `pub extern crate` is deprecated but still exists.
-    | foreign_mod
-    | type_decl
-    | static_decl
-    | const_decl
-    | fn_decl
-    | mod_decl_short
-    | mod_decl
-    | struct_decl
-    | enum_decl
-    | trait_decl;
-
-impl_block:
-    'unsafe'? 'impl' ty_params? impl_what where_clause? '{' impl_item* '}';
-
-impl_what:
-    '!' ty_sum 'for' ty_sum
-    | ty_sum 'for' ty_sum
-    | ty_sum 'for' '..'
-    | ty_sum;
-
-impl_item:
-    attr* 'pub'? impl_item_tail;
-
-impl_item_tail:
-    method_decl
-    | 'type' Ident '=' ty ';'
-    | Ident '!' tt_parens ';'
-    | Ident '!' tt_block;
-
-use_decl:
-    'use' use_path ';';
-
-use_path:
-    '::'? '{' use_item_list '}'
-    | '::'? any_ident ('::' any_ident)* use_suffix?;
-
-use_suffix:
-    '::' '*'
-    | '::' '{' use_item_list '}'
-    | rename;
-
-use_item:
-    any_ident rename?;
-
-use_item_list:
-    use_item (',' use_item)* ','?;
-
-rename:
-    'as' Ident;
-
-extern_crate:
-    'extern' 'crate' Ident rename? ';';
-
-foreign_mod:
-    abi '{' inner_attr* foreign_item* '}';
-
-foreign_item:
-    attr* 'pub'? foreign_item_tail
-    | attr* item_macro_use;
-
-foreign_item_tail:
-    'static' 'mut'? Ident ':' ty_sum ';'
-    | fn_head '(' param_list? ')' rtype? where_clause? ';';
-
-type_decl:
-    'type' Ident ty_params? '=' ty ';';
-
-static_decl:
-    'static' 'mut'? Ident ':' ty '=' expr ';';
-
-const_decl:
-    'const' Ident ':' ty '=' expr ';';
-
-fn_decl:
-    fn_head '(' param_list? ')' rtype? where_clause? block_with_inner_attrs;
-
-method_decl:
-    fn_head '(' method_param_list? ')' rtype? where_clause? block_with_inner_attrs;
-
-trait_method_decl:
-    fn_head '(' trait_method_param_list? ')' rtype? where_clause? (block_with_inner_attrs | ';');
-
-// Parts of a `fn` definition up to the type parameters.
-//
-// `const` and `extern` are incompatible on a `fn`, but this grammar
-// does not rule it out, holding that in a hypothetical Rust language
-// specification, it would be clearer to specify this as a semantic
-// rule, not a syntactic one. That is, not every rule that can be
-// enforced gramatically should be.
-fn_head:
-    'const'? 'unsafe'? abi? 'fn' Ident ty_params?;
-
-param:
-    pat ':' ty;
-
-param_list:
-    param (',' param)* ','?;
-
-self_param:
-    'mut'? 'self' (':' ty)?
-    | '&' Lifetime? 'mut'? 'self';
-
-method_param_list:
-    (param | self_param) (',' param)* ','?;
-
-// Argument names are optional in traits. The ideal grammar here would be
-// `(pat ':')? ty`, but parsing this would be unreasonably complicated.
-// Instead, the `pat` is restricted to a few short, simple cases.
-trait_method_param:
-    restricted_pat ':' ty
-    | ty;
-
-restricted_pat:
-    ('&' | '&&' | 'mut')? ('_' | Ident);
-
-trait_method_param_list:
-    (trait_method_param | self_param) (',' trait_method_param)* ','?;
-
-rtype:
-    '->' (ty | '!');
-
-mod_decl_short:
-    'mod' Ident ';';
-
-mod_decl:
-    'mod' Ident '{' mod_body '}';
-
-struct_decl:
-    'struct' Ident ty_params? struct_tail;
-
-struct_tail:
-    where_clause? ';'
-    | '(' tuple_struct_field_list ')' where_clause? ';'
-    | where_clause? '{' field_decl_list '}';
-
-tuple_struct_field:
-    attr* 'pub'? ty;
-
-tuple_struct_field_list:
-    tuple_struct_field (',' tuple_struct_field)* ','?;
-
-field_decl:
-    attr* 'pub'? Ident ':' ty;
-
-field_decl_list:
-    field_decl (',' field_decl)* ','?;
-
-enum_decl:
-    'enum' Ident ty_params? '{' enum_variant_list? '}';
-
-enum_variant:
-    attr* enum_variant_main;
-
-enum_variant_list:
-    enum_variant (',' enum_variant)* ','?;
-
-enum_variant_main:
-    Ident '(' enum_tuple_field_list ')'
-    | Ident '{' enum_field_decl_list '}'
-    | Ident '=' expr
-    | Ident;
-
-// enum variants that are tuple-struct-like can't have `pub` on individual fields.
-enum_tuple_field:
-    attr* ty;
-
-enum_tuple_field_list:
-    enum_tuple_field (',' enum_tuple_field)* ','?;
-
-// enum variants that are struct-like can't have `pub` on individual fields.
-enum_field_decl:
-    Ident ':' ty;
-
-enum_field_decl_list:
-    enum_field_decl (',' enum_field_decl)* ','?;
-
-trait_decl:
-    'unsafe'? 'trait' Ident ty_params? colon_bound? '{' trait_item* '}';
-
-trait_item:
-    attr* 'type' Ident colon_bound? ty_default? ';'
-    | attr* trait_method_decl;
-
-ty_default:
-    '=' ty;
+expr_list:
+    expr (',' expr)* ','?;
 
 
-// Blocks and expressions
+// --- Blocks
 
 block:
     '{' block_body '}';
@@ -503,20 +543,17 @@ blocky_expr:
     block
     | 'if' cond_or_pat block ('else' 'if' cond_or_pat block)* ('else' block)?
     | 'match' expr_no_struct '{' match_arms? '}'
-    | loop_label? loop_expr
+    | loop_label? 'while' cond_or_pat block
+    | loop_label? 'for' pat 'in' expr_no_struct block
+    | loop_label? 'loop' block
     | 'unsafe' block;
-
-loop_expr:
-    'while' cond_or_pat block
-    | 'for' pat 'in' expr_no_struct block
-    | 'loop' block;
-
-loop_label:
-    Lifetime ':';
 
 cond_or_pat:
     expr_no_struct
     | 'let' pat '=' expr;
+
+loop_label:
+    Lifetime ':';
 
 match_arms:
     match_arm_intro blocky_expr ','? match_arms?
@@ -531,6 +568,30 @@ match_pat:
 
 match_if_clause:
     'if' expr;
+
+
+// --- Primary expressions
+
+prim_expr:
+    prim_expr_no_struct
+    | path '{' fields? '}';
+
+prim_expr_no_struct:
+    lit
+    | 'self'
+    | path macro_tail?
+    // The next 3 productions match exactly `'(' expr_list ')'`,
+    // but (e) and (e,) are distinct expressions, so match them separately
+    | '(' ')'
+    | '(' expr ')'
+    | '(' expr ',' expr_list? ')'
+    | '[' expr_list? ']'
+    | '[' expr ';' expr ']'
+    | 'move'? closure_params closure_tail
+    | blocky_expr
+    | 'break' Lifetime?
+    | 'continue' Lifetime?
+    | 'return' expr?;  // this is IMO a rustc bug, should be expr_no_struct
 
 lit:
     'true'
@@ -557,30 +618,6 @@ closure_tail:
     rtype block
     | expr;
 
-prim_expr_no_struct:
-    path macro_tail?
-    | 'self'
-    | lit
-    // The next 3 productions match exactly `'(' expr_list ')'`,
-    // but (e) and (e,) are distinct expressions, so match them separately
-    | '(' ')'
-    | '(' expr ')'
-    | '(' expr ',' expr_list? ')'
-    | '[' expr_list? ']'
-    | '[' expr ';' expr ']'
-    | blocky_expr
-    | 'break' Lifetime?
-    | 'continue' Lifetime?
-    | 'return' expr?  // this is IMO a rustc bug, should be expr_no_struct
-    | 'move'? closure_params closure_tail;
-
-prim_expr:
-    path '{' fields? '}'
-    | prim_expr_no_struct;
-
-field:
-    Ident ':' expr;
-
 fields:
     struct_update_base
     | field (',' field)* (',' struct_update_base | ','?);
@@ -588,6 +625,11 @@ fields:
 struct_update_base:
     '..' expr;  // this is IMO a bug in the grammar. should be or_expr or something.
 
+field:
+    Ident ':' expr;
+
+
+// --- Operators
 
 post_expr:
     prim_expr
@@ -662,14 +704,8 @@ assign_expr:
     | range_expr ('=' | '*=' | '/=' | '%=' | '+=' | '-='
                       | '<<=' | '>>=' | '&=' | '^=' | '|=' ) assign_expr;
 
-expr:
-    assign_expr;
 
-expr_list:
-    expr (',' expr)* ','?;
-
-
-// The full copy of the expression syntax but without structs
+// --- Copy of the operator expression syntax but without structs
 
 post_expr_no_struct:
     prim_expr_no_struct
@@ -738,9 +774,6 @@ assign_expr_no_struct:
     | range_expr_no_struct ('=' | '*=' | '/=' | '%=' | '+=' | '-='
                                 | '<<=' | '>>=' | '&=' | '^=' | '|=' ) assign_expr_no_struct;
 
-expr_no_struct:
-    assign_expr_no_struct;
-
 
 // === Tokens
 
@@ -751,6 +784,9 @@ any_ident:
     | 'static'
     | 'super';
 
+// `$` is recognized as a token, so it may be present in token trees,
+// and `macro_rules!` makes use of it. But it is not mentioned anywhere
+// else in this grammar.
 CashMoney:
     '$';
 
@@ -864,3 +900,5 @@ BlockComment:
 // BUG: `ty_sum` does not include `?Send` but should
 // BUG: look into unifying `ty_sum` and `bound`
 // BUG: rename `lit` -> `literal`
+// BUG: probably inner attributes are allowed in many more places
+// BUG: refactor `use_path` syntax to be like `path`
