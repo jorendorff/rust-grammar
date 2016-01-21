@@ -897,6 +897,7 @@ LineComment:
 BlockComment:
     '/*' (~[*/] | '/'* BlockComment | '/'+ (~[*/]) | '*'+ ~[*/])* '*'+ '/' -> skip;
 
+// BUG: only ascii identifiers are permitted
 // BUG: doc comments are ignored
 // BUG: associated constants are not supported
 // BUG: variadic foreign functions are not supported
@@ -906,4 +907,4 @@ BlockComment:
 // BUG: look into unifying `ty_sum` and `bound`
 // BUG: rename `lit` -> `literal`
 // BUG: probably inner attributes are allowed in many more places
-// BUG: refactor `use_path` syntax to be like `path`
+// BUG: refactor `use_path` syntax to be like `path`, remove `any_ident`
