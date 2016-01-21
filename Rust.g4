@@ -167,7 +167,7 @@ tuple_struct_field_list:
     tuple_struct_field (',' tuple_struct_field)* ','?;
 
 field_decl:
-    'pub'? Ident ':' ty;
+    attr* 'pub'? Ident ':' ty;
 
 field_decl_list:
     field_decl (',' field_decl)* ','?;
