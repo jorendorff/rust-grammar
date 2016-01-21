@@ -176,6 +176,9 @@ enum_decl:
     'enum' Ident ty_params? '{' enum_variant_list? '}';
 
 enum_variant:
+    attr* enum_variant_main;
+
+enum_variant_main:
     Ident '(' ty_list ')'
     | Ident '{' enum_field_decl_list '}'
     | Ident '=' expr
