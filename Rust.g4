@@ -37,10 +37,10 @@ impl_block:
     'unsafe'? 'impl' ty_params? impl_what where_clause? '{' impl_item* '}';
 
 impl_what:
-    '!' ty 'for' ty
-    | ty 'for' ty
-    | ty 'for' '..'
-    | ty;
+    '!' ty_sum 'for' ty_sum
+    | ty_sum 'for' ty_sum
+    | ty_sum 'for' '..'
+    | ty_sum;
 
 impl_item:
     attr* 'pub'? impl_item_tail;
