@@ -233,7 +233,7 @@ ty:
     // but (i32) and (i32,) are distinct types, so parse them with different rules.
     | '(' ')'                           // unit
     | '(' ty_sum ')'                    // grouping (parens are ignored)
-    | '(' ty_sum ',' ty_sum_list ')'    // tuple
+    | '(' ty_sum ',' ty_sum_list? ')'   // tuple
     | '[' ty (';' expr)? ']'
     | '&' Lifetime? 'mut'? ty
     | '&&' Lifetime? 'mut'? ty          // meaning `& & ty`
