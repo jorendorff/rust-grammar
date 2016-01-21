@@ -264,7 +264,7 @@ ty:
     | '&' Lifetime? 'mut'? ty
     | '&&' Lifetime? 'mut'? ty          // meaning `& & ty`
     | '*' mut_or_const ty               // pointer type
-    | for_lifetime? 'unsafe'? abi? 'fn' '(' ty_list ')' rtype?
+    | for_lifetime? 'unsafe'? abi? 'fn' '(' ty_list? ')' rtype?
     | ty_path;
 
 mut_or_const:
