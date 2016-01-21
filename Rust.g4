@@ -687,13 +687,16 @@ expr_no_struct:
 
 // Patterns
 
+pat_lit:
+    '-'? lit;
+
 // A `pat_no_mut` is a pattern that does not start with `mut`.
 // It is distinct from `pat` to rule out ambiguity in parsing the
 // pattern `&mut x`, which must parse like `&mut (x)`, not `&(mut x)`.
 pat_no_mut:
     '_'
-    | lit
-    | lit '...' lit
+    | pat_lit
+    | pat_lit '...' pat_lit
     | 'ref'? Ident ('@' pat)?
     | 'ref' 'mut' Ident ('@' pat)?
     | Ident macro_tail
