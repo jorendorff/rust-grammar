@@ -90,13 +90,13 @@ const_decl:
     'const' Ident ':' ty '=' expr ';';
 
 fn_decl:
-    fn_head '(' param_list? ')' rtype? where_clause? block;
+    fn_head '(' param_list? ')' rtype? where_clause? block_with_inner_attrs;
 
 method_decl:
-    fn_head '(' method_param_list? ')' rtype? where_clause? block;
+    fn_head '(' method_param_list? ')' rtype? where_clause? block_with_inner_attrs;
 
 trait_method_decl:
-    fn_head '(' trait_method_param_list? ')' rtype? where_clause? (block | ';');
+    fn_head '(' trait_method_param_list? ')' rtype? where_clause? (block_with_inner_attrs | ';');
 
 // Parts of a `fn` definition up to the type parameters.
 //
@@ -391,7 +391,11 @@ simple_path_segment:
     Ident
     | 'Self';
 
-block: '{' block_body '}';
+block:
+    '{' block_body '}';
+
+block_with_inner_attrs:
+    '{' inner_attr* block_body '}';
 
 // OK, this is super tricky.
 // This relies on ANTLR4's rule that in alternatives (as in JS regexps),
