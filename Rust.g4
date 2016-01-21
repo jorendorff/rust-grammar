@@ -816,7 +816,6 @@ BlockComment:
 // BUG: `impl !Send` is not supported
 // BUG, probably: if `for <'a> 'a` is a legal bound, it's not supported
 // BUG: associated constants are not supported
-// BUG: `unsafe trait` items are not supported
 // BUG: variadic foreign functions are not supported
 // BUG: `static mut` is not supported
 // BUG: '?Sized` bound is not supported
