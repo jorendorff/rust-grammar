@@ -8,7 +8,7 @@ mod_body:
 
 item:
     attr* 'pub'? pub_able_item
-    | 'impl' ty_params? ty impl_for? where_clause? '{' impl_item* '}'
+    | attr* 'impl' ty_params? ty impl_for? where_clause? '{' impl_item* '}'
     | attr* item_macro_use;
 
 item_macro_use:
@@ -185,14 +185,14 @@ enum_field_decl_list:
     enum_field_decl (',' enum_field_decl)* ','?;
 
 trait_decl:
-    'trait' Ident ty_params? trait_super? '{' trait_member* '}';
+    'trait' Ident ty_params? trait_super? '{' trait_item* '}';
 
 trait_super:
     ':' ty_bounds;
 
-trait_member:
-    'type' Ident ';'
-    | trait_method_decl;
+trait_item:
+    attr* 'type' Ident ';'
+    | attr* trait_method_decl;
 
 
 // Attributes
