@@ -87,7 +87,7 @@ foreign_item:
 
 foreign_item_tail:
     'static' 'mut'? Ident ':' ty_sum ';'
-    | fn_head '(' param_list? ')' rtype? where_clause? ';';
+    | foreign_fn_decl;
 
 
 // --- static and const declarations
@@ -110,6 +110,9 @@ method_decl:
 trait_method_decl:
     fn_head '(' trait_method_param_list? ')' rtype? where_clause? (block_with_inner_attrs | ';');
 
+foreign_fn_decl:
+    fn_head '(' variadic_param_list? ')' rtype? where_clause? ';';
+
 // Parts of a `fn` definition up to the type parameters.
 //
 // `const` and `extern` are incompatible on a `fn`, but this grammar
@@ -125,6 +128,9 @@ param:
 
 param_list:
     param (',' param)* ','?;
+
+variadic_param_list:
+    param (',' param)* (',' '...')? ','?;
 
 self_param:
     'mut'? 'self' (':' ty)?
@@ -900,7 +906,6 @@ BlockComment:
 // BUG: only ascii identifiers are permitted
 // BUG: doc comments are ignored
 // BUG: associated constants are not supported
-// BUG: variadic foreign functions are not supported
 // BUG: probably most places that use `ty` and `ty_list` are wrong,
 //      and should use `ty_sum` and `ty_sum_list`
 // BUG: `ty_sum` does not include `?Send` but should
