@@ -78,7 +78,7 @@ foreign_item:
 
 foreign_item_tail:
     'static' 'mut'? Ident ':' ty_sum ';'
-    | 'unsafe'? 'fn' Ident ty_params? '(' param_list? ')' rtype? where_clause? ';';
+    | fn_head '(' param_list? ')' rtype? where_clause? ';';
 
 type_decl:
     'type' Ident ty_params? '=' ty ';';
@@ -90,13 +90,16 @@ const_decl:
     'const' Ident ':' ty '=' expr ';';
 
 fn_decl:
-    'fn' Ident ty_params? '(' param_list? ')' rtype? where_clause? block;
+    fn_head '(' param_list? ')' rtype? where_clause? block;
 
 method_decl:
-    'fn' Ident ty_params? '(' method_param_list? ')' rtype? where_clause? block;
+    fn_head '(' method_param_list? ')' rtype? where_clause? block;
 
 trait_method_decl:
-    'fn' Ident ty_params? '(' trait_method_param_list? ')' rtype? where_clause? (block | ';');
+    fn_head '(' trait_method_param_list? ')' rtype? where_clause? (block | ';');
+
+fn_head:
+    'unsafe'? 'fn' Ident ty_params?;
 
 param:
     pat ':' ty;
