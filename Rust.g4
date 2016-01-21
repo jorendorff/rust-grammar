@@ -310,7 +310,7 @@ ty_path_segment:
 
 ty_path_parent:
     'self'
-    | '<' ty as_trait? '>'
+    | '<' ty_sum as_trait? '>'
     | ty_path_segment
     | '::' ty_path_segment
     | ty_path_parent '::' ty_path_segment;
@@ -388,7 +388,7 @@ path:
 
 path_parent:
     'self'
-    | '<' ty as_trait? '>'
+    | '<' ty_sum as_trait? '>'
     | path_segment
     | '::' path_segment
     | path_parent '::' path_segment;
