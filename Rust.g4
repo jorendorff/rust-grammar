@@ -144,7 +144,7 @@ where_bound_list:
     where_bound (',' where_bound)* ','?;
 
 where_bound:
-    ty ':' ty_bounds;
+    ty colon_bound;
 
 mod_decl_short:
     'mod' Ident ';';
@@ -192,13 +192,13 @@ enum_field_decl_list:
     enum_field_decl (',' enum_field_decl)* ','?;
 
 trait_decl:
-    'trait' Ident ty_params? trait_super? '{' trait_item* '}';
+    'trait' Ident ty_params? colon_bound? '{' trait_item* '}';
 
-trait_super:
-    ':' ty_bounds;
+colon_bound:
+    ':' bound;
 
 trait_item:
-    attr* 'type' Ident ';'
+    attr* 'type' Ident colon_bound? ';'
     | attr* trait_method_decl;
 
 
@@ -256,11 +256,11 @@ for_lifetime:
     'for' '<' lifetime_def_list '>';
 
 lifetime_def:
-    Lifetime (':' lifetime_bounds)?;
+    Lifetime (':' lifetime_bound)?;
 
-lifetime_bounds:
+lifetime_bound:
     Lifetime
-    | lifetime_bounds '+' Lifetime;
+    | lifetime_bound '+' Lifetime;
 
 lifetime_def_list:
     lifetime_def (',' lifetime_def)* ','?;
@@ -287,7 +287,7 @@ ty_args:
     | '<' (Lifetime ',')* ty_arg_list '>';
 
 ty_sum:
-    ty ('+' ty_bounds)?;
+    ty ('+' bound)?;
 
 ty_sum_list:
     ty_sum (',' ty_sum)* ','?;
@@ -313,23 +313,19 @@ lifetime_param_list:
     lifetime_param (',' lifetime_param)* ','?;
 
 ty_param:
-    Ident (':' ty_bounds)?;
+    Ident colon_bound?;
 
 ty_param_list:
     ty_param (',' ty_param)* ','?;
 
-lifetime_bound:
-    Lifetime
-    | lifetime_bound '+' Lifetime;
-
-prim_ty_bound:
+prim_bound:
     ty_path
     | '?' ty_path
     | Lifetime;
 
-ty_bounds:
-    prim_ty_bound
-    | ty_bounds '+' prim_ty_bound;
+bound:
+    prim_bound
+    | bound '+' prim_bound;
 
 
 // Blocks and expressions
@@ -806,7 +802,6 @@ BlockComment:
 //      much less paths starting with `<<`
 // BUG: `impl !Send` is not supported
 // BUG, probably: if `for <'a> 'a` is a legal bound, it's not supported
-// BUG: bounds on associated types are not supported
 // BUG: associated constants are not supported
 // BUG: `unsafe trait` items are not supported
 // BUG: `unsafe impl` is not supported
