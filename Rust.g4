@@ -221,7 +221,7 @@ pat_no_mut:
     | 'ref' 'mut' Ident ('@' pat)?
     | Ident macro_tail
     | path '(' pat_list_with_dots ')'
-    | path '{' enum_struct_field_pats? '}'
+    | path '{' pat_fields? '}'
     | path
     | '(' ')'
     | '(' pat ')'
@@ -243,11 +243,11 @@ pat_list_with_dots:
     '..'
     | pat (',' pat)* (',' '..' | ','?);
 
-enum_struct_field_pats:
+pat_fields:
     '..'
-    | field_pat (',' field_pat)* (',' '..' | ','?);
+    | pat_field (',' pat_field)* (',' '..' | ','?);
 
-field_pat:
+pat_field:
     'mut'? 'ref'? Ident
     | Ident ':' pat;
 
