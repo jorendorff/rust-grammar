@@ -462,7 +462,7 @@ prim_expr_no_struct:
     // but (e) and (e,) are distinct expressions, so match them separately
     | '(' ')'
     | '(' expr ')'
-    | '(' expr ',' expr_list ')'
+    | '(' expr ',' expr_list? ')'
     | '[' expr_list? ']'
     | '[' expr ';' expr ']'
     | blocky_expr
