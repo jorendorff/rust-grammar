@@ -771,7 +771,8 @@ fragment INT_SUFFIX:
 FullIntLit:
     DEC_DIGITS INT_SUFFIX?
     | '0x' '_'* [0-9a-fA-F] [0-9a-fA-F_]* INT_SUFFIX?
-    | '0o' '_'* [0-7] [0-7_]* INT_SUFFIX?;
+    | '0o' '_'* [0-7] [0-7_]* INT_SUFFIX?
+    | '0b' '_'* [01] [01_]* INT_SUFFIX?;
 
 fragment EXPONENT:
     [Ee] [+-]? '_'* [0-9] [0-9_]*;
@@ -795,7 +796,6 @@ BlockComment:
     '/*' (~[*/] | '/'* BlockComment | '/'+ (~[*/]) | '*'+ ~[*/])* '*'+ '/' -> skip;
 
 // BUG: doc comments are ignored
-// BUG: binary int literals `0b10010` are not supported
 // BUG: not all string constant forms are supported
 // BUG: paths and type paths starting with `<`, like `<Vec<i32>>::new`
 //      and `<Frog as Animal>::move`, are not supported,
