@@ -114,6 +114,78 @@ ty_path_segment_no_super:
     (Ident | 'Self') ty_args?;
 
 
+// === Types and type parameters
+
+ty:
+    '_'
+    // The next 3 productions match exactly `'(' ty_sum_list? ')'`,
+    // but (i32) and (i32,) are distinct types, so parse them with different rules.
+    | '(' ')'                           // unit
+    | '(' ty_sum ')'                    // grouping (parens are ignored)
+    | '(' ty_sum ',' ty_sum_list? ')'   // tuple
+    | '[' ty (';' expr)? ']'
+    | '&' Lifetime? 'mut'? ty
+    | '&&' Lifetime? 'mut'? ty          // meaning `& & ty`
+    | '*' mut_or_const ty               // pointer type
+    | for_lifetime? 'unsafe'? abi? 'fn' '(' trait_method_param_list? ')' rtype?
+    | ty_path;
+
+mut_or_const:
+    'mut'
+    | 'const';
+
+abi:
+    'extern' StringLit?;
+
+ty_list:
+    ty (',' ty)* ','?;
+
+ty_args:
+    '<' lifetime_list '>'
+    | '<' (Lifetime ',')* ty_arg_list '>';
+
+ty_sum:
+    ty ('+' bound)?;
+
+ty_sum_list:
+    ty_sum (',' ty_sum)* ','?;
+
+ty_arg:
+    Ident '=' ty
+    | ty_sum;
+
+ty_arg_list:
+    ty_arg (',' ty_arg)* ','?;
+
+ty_params:
+    '<' lifetime_param_list '>'
+    | '<' (lifetime_param ',')* ty_param_list '>';
+
+lifetime_list:
+    Lifetime (',' Lifetime)* ','?;
+
+lifetime_param:
+    Lifetime (':' lifetime_bound)?;
+
+lifetime_param_list:
+    lifetime_param (',' lifetime_param)* ','?;
+
+ty_param:
+    Ident colon_bound? ty_default?;
+
+ty_param_list:
+    ty_param (',' ty_param)* ','?;
+
+prim_bound:
+    ty_path
+    | '?' ty_path
+    | Lifetime;
+
+bound:
+    prim_bound
+    | bound '+' prim_bound;
+
+
 // === Items
 
 crate:
@@ -335,78 +407,6 @@ trait_item:
 
 ty_default:
     '=' ty;
-
-
-// Types and type parameters
-
-ty:
-    '_'
-    // The next 3 productions match exactly `'(' ty_sum_list? ')'`,
-    // but (i32) and (i32,) are distinct types, so parse them with different rules.
-    | '(' ')'                           // unit
-    | '(' ty_sum ')'                    // grouping (parens are ignored)
-    | '(' ty_sum ',' ty_sum_list? ')'   // tuple
-    | '[' ty (';' expr)? ']'
-    | '&' Lifetime? 'mut'? ty
-    | '&&' Lifetime? 'mut'? ty          // meaning `& & ty`
-    | '*' mut_or_const ty               // pointer type
-    | for_lifetime? 'unsafe'? abi? 'fn' '(' trait_method_param_list? ')' rtype?
-    | ty_path;
-
-mut_or_const:
-    'mut'
-    | 'const';
-
-abi:
-    'extern' StringLit?;
-
-ty_list:
-    ty (',' ty)* ','?;
-
-ty_args:
-    '<' lifetime_list '>'
-    | '<' (Lifetime ',')* ty_arg_list '>';
-
-ty_sum:
-    ty ('+' bound)?;
-
-ty_sum_list:
-    ty_sum (',' ty_sum)* ','?;
-
-ty_arg:
-    Ident '=' ty
-    | ty_sum;
-
-ty_arg_list:
-    ty_arg (',' ty_arg)* ','?;
-
-ty_params:
-    '<' lifetime_param_list '>'
-    | '<' (lifetime_param ',')* ty_param_list '>';
-
-lifetime_list:
-    Lifetime (',' Lifetime)* ','?;
-
-lifetime_param:
-    Lifetime (':' lifetime_bound)?;
-
-lifetime_param_list:
-    lifetime_param (',' lifetime_param)* ','?;
-
-ty_param:
-    Ident colon_bound? ty_default?;
-
-ty_param_list:
-    ty_param (',' ty_param)* ','?;
-
-prim_bound:
-    ty_path
-    | '?' ty_path
-    | Lifetime;
-
-bound:
-    prim_bound
-    | bound '+' prim_bound;
 
 
 // Blocks and expressions
