@@ -161,7 +161,7 @@ struct_tail:
     | '{' field_decl_list '}';
 
 tuple_struct_field:
-    'pub'? ty;
+    attr* 'pub'? ty;
 
 tuple_struct_field_list:
     tuple_struct_field (',' tuple_struct_field)* ','?;
