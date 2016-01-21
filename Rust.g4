@@ -654,7 +654,8 @@ pre_expr:
     | '&' 'mut'? pre_expr
     | '&&' 'mut'? pre_expr   // meaning `& & expr`
     | '*' pre_expr
-    | 'box' pre_expr;
+    | 'box' pre_expr
+    | 'in' expr_no_struct block;  // placement new - possibly not the final syntax
 
 cast_expr:
     pre_expr
