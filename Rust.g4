@@ -201,8 +201,11 @@ colon_bound:
     ':' bound;
 
 trait_item:
-    attr* 'type' Ident colon_bound? ';'
+    attr* 'type' Ident colon_bound? ty_default? ';'
     | attr* trait_method_decl;
+
+ty_default:
+    '=' ty;
 
 
 // Attributes
@@ -333,13 +336,10 @@ lifetime_param_list:
     lifetime_param (',' lifetime_param)* ','?;
 
 ty_param:
-    Ident colon_bound? ty_param_default?;
+    Ident colon_bound? ty_default?;
 
 ty_param_list:
     ty_param (',' ty_param)* ','?;
-
-ty_param_default:
-    '=' ty;
 
 prim_bound:
     ty_path
