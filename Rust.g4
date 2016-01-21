@@ -214,7 +214,7 @@ enum_field_decl_list:
 // --- Traits
 
 trait_decl:
-    'unsafe'? 'trait' Ident ty_params? colon_bound? '{' trait_item* '}';
+    'unsafe'? 'trait' Ident ty_params? colon_bound? where_clause? '{' trait_item* '}';
 
 trait_item:
     attr* 'type' Ident colon_bound? ty_default? ';'
