@@ -1,5 +1,32 @@
 grammar Rust;
 
+// === Attributes and token trees
+
+attr:
+    '#' '[' tt* ']';
+
+inner_attr:
+    '#' '!' '[' tt* ']';
+
+tt:
+    ~('(' | ')' | '{' | '}' | '[' | ']')
+    | tt_delimited;
+
+tt_delimited:
+    tt_parens
+    | tt_brackets
+    | tt_block;
+
+tt_parens:
+    '(' tt* ')';
+
+tt_brackets:
+    '[' tt* ']';
+
+tt_block:
+    '{' tt* '}';
+
+
 // === Paths
 // (forward references: ty_sum, ty_args)
 
@@ -308,36 +335,6 @@ trait_item:
 
 ty_default:
     '=' ty;
-
-
-// Attributes
-
-attr:
-    '#' '[' tt* ']';
-
-inner_attr:
-    '#' '!' '[' tt* ']';
-
-
-// Macros and token trees
-
-tt:
-    ~('(' | ')' | '{' | '}' | '[' | ']')
-    | tt_delimited;
-
-tt_delimited:
-    tt_parens
-    | tt_brackets
-    | tt_block;
-
-tt_parens:
-    '(' tt* ')';
-
-tt_brackets:
-    '[' tt* ']';
-
-tt_block:
-    '{' tt* '}';
 
 
 // Types and type parameters
