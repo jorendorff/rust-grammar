@@ -150,7 +150,10 @@ where_bound_list:
     where_bound (',' where_bound)* ','?;
 
 where_bound:
-    ty colon_bound;
+    for_lifetime? ty colon_bound;
+
+colon_bound:
+    ':' bound;
 
 mod_decl_short:
     'mod' Ident ';';
@@ -209,9 +212,6 @@ enum_field_decl_list:
 
 trait_decl:
     'unsafe'? 'trait' Ident ty_params? colon_bound? '{' trait_item* '}';
-
-colon_bound:
-    ':' bound;
 
 trait_item:
     attr* 'type' Ident colon_bound? ty_default? ';'
@@ -842,7 +842,6 @@ BlockComment:
     '/*' (~[*/] | '/'* BlockComment | '/'+ (~[*/]) | '*'+ ~[*/])* '*'+ '/' -> skip;
 
 // BUG: doc comments are ignored
-// BUG, probably: if `for <'a> 'a` is a legal bound, it's not supported
 // BUG: associated constants are not supported
 // BUG: variadic foreign functions are not supported
 // BUG: `static mut` is not supported
