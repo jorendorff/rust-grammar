@@ -632,8 +632,9 @@ pre_expr_no_struct:
     | '-' pre_expr_no_struct
     | '!' pre_expr_no_struct
     | '&' 'mut'? pre_expr_no_struct
-    | '&&' 'mut'? pre_expr_no_struct    // meaning `& & expr`
-    | '*' pre_expr_no_struct;
+    | '&&' 'mut'? pre_expr_no_struct   // meaning `& & expr`
+    | '*' pre_expr_no_struct
+    | 'box' pre_expr_no_struct;
 
 cast_expr_no_struct:
     pre_expr_no_struct
