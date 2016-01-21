@@ -890,8 +890,29 @@ fragment FLOAT_SUFFIX:
     'f32'
     | 'f64';
 
+// Some lookahead is required here. ANTLR does not support this
+// except by injecting some Java code into the middle of the pattern.
+//
+// A floating-point literal may end with a dot, but:
+//
+// *   `100..f()` is parsed as `100 .. f()`, not `100. .f()`,
+//     contrary to the usual rule that lexers are greedy.
+//
+// *   Similarly, but less important, a letter or underscore after `.`
+//     causes the dot to be interpreted as a separate token by itself,
+//     so that `1.abs()` parses a method call. The type checker will
+//     later reject it, though.
+//
 FloatLit:
     DEC_DIGITS '.' [0-9] [0-9_]* EXPONENT? FLOAT_SUFFIX?
+    | DEC_DIGITS ('.' {
+        /* dot followed by another dot is a range, not a float */
+        _input.LA(1) != '.' &&
+        /* dot followed by an identifier is an integer with a function call, not a float */
+        _input.LA(1) != '_' &&
+        !(_input.LA(1) >= 'a' && _input.LA(1) <= 'z') &&
+        !(_input.LA(1) >= 'A' && _input.LA(1) <= 'Z')
+    }?)
     | DEC_DIGITS EXPONENT FLOAT_SUFFIX?
     | DEC_DIGITS FLOAT_SUFFIX;
 
