@@ -543,15 +543,11 @@ block_body:
 
 stmt:
     ';'
+    | item  // Statement macros are included here.
     | attr* stmt_tail;
 
 stmt_tail:
     'let' pat (':' ty)? ('=' expr)? ';'
-    | item
-    | Ident '!' Ident tt_parens ';'
-    | Ident '!' Ident tt_brackets ';'
-    | Ident '!' Ident tt_block
-    | Ident '!' tt_delimited
     | blocky_expr
     | expr ';';
 
