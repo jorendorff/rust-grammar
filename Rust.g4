@@ -669,7 +669,8 @@ pre_expr:
 
 cast_expr:
     pre_expr
-    | cast_expr 'as' ty;
+    | cast_expr 'as' ty
+    | cast_expr ':' ty;  // experimental type ascription
 
 mul_expr:
     cast_expr
