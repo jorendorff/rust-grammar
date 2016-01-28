@@ -702,7 +702,7 @@ bit_or_expr:
 
 cmp_expr:
     bit_or_expr
-    | bit_or_expr ('==' | '!=' | '<' | '<=' | '>' | '>=') bit_or_expr;
+    | bit_or_expr ('==' | '!=' | '<' | '<=' | '>' | '>' '=') bit_or_expr;
 
 and_expr:
     cmp_expr
@@ -720,7 +720,7 @@ range_expr:
 assign_expr:
     range_expr
     | range_expr ('=' | '*=' | '/=' | '%=' | '+=' | '-='
-                      | '<<=' | '>>=' | '&=' | '^=' | '|=' ) assign_expr;
+                      | '<<=' | '>' '>' '=' | '&=' | '^=' | '|=' ) assign_expr;
 
 
 // --- Copy of the operator expression syntax but without structs
@@ -772,7 +772,7 @@ bit_or_expr_no_struct:
 
 cmp_expr_no_struct:
     bit_or_expr_no_struct
-    | bit_or_expr_no_struct ('==' | '!=' | '<' | '<=' | '>' | '>=') bit_or_expr_no_struct;
+    | bit_or_expr_no_struct ('==' | '!=' | '<' | '<=' | '>' | '>' '=') bit_or_expr_no_struct;
 
 and_expr_no_struct:
     cmp_expr_no_struct
@@ -790,7 +790,7 @@ range_expr_no_struct:
 assign_expr_no_struct:
     range_expr_no_struct
     | range_expr_no_struct ('=' | '*=' | '/=' | '%=' | '+=' | '-='
-                                | '<<=' | '>>=' | '&=' | '^=' | '|=' ) assign_expr_no_struct;
+                                | '<<=' | '>' '>' '=' | '&=' | '^=' | '|=' ) assign_expr_no_struct;
 
 
 // === Tokens
