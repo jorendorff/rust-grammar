@@ -576,7 +576,7 @@ match_arms:
     | match_arm_intro expr (',' match_arms?)?;
 
 match_arm_intro:
-    match_pat match_if_clause? '=>';
+    attr* match_pat match_if_clause? '=>';
 
 match_pat:
     pat
