@@ -1,5 +1,7 @@
 grammar Rust;
 
+import xidstart, xidcontinue;
+
 
 // === Modules and items
 
@@ -804,11 +806,14 @@ any_ident:
 CashMoney:
     '$';
 
+fragment IDENT:
+    XID_Start XID_Continue*;
+
 Lifetime:
-    ['][A-Za-z_][0-9A-Za-z_]*;
+    [']IDENT;
 
 Ident:
-    [A-Za-z_][0-9A-Za-z_]*;
+    IDENT;
 
 fragment SIMPLE_ESCAPE:
     '\\' [0nrt'"\\];
