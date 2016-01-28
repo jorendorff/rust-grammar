@@ -376,7 +376,8 @@ where_bound_list:
     where_bound (',' where_bound)* ','?;
 
 where_bound:
-    for_lifetime? ty colon_bound;
+    Lifetime ':' lifetime_bound
+    | for_lifetime? ty colon_bound;
 
 colon_bound:
     ':' bound;
