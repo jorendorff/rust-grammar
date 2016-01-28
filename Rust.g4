@@ -167,7 +167,7 @@ struct_decl:
 struct_tail:
     where_clause? ';'
     | '(' tuple_struct_field_list ')' where_clause? ';'
-    | where_clause? '{' field_decl_list '}';
+    | where_clause? '{' field_decl_list? '}';  // braced empty structs are unstable (#29720)
 
 tuple_struct_field:
     attr* 'pub'? ty;
