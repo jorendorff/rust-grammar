@@ -467,13 +467,13 @@ pat:
 pat_no_mut:
     '_'
     | pat_lit
-    | pat_lit '...' pat_lit
+    | pat_range_end '...' pat_range_end
+    | Ident macro_tail
     | 'ref'? Ident ('@' pat)?
     | 'ref' 'mut' Ident ('@' pat)?
-    | Ident macro_tail
     | path '(' pat_list_with_dots ')'
     | path '{' pat_fields? '}'
-    | path
+    | path  // BUG: ambiguity with bare Ident case (above)
     | '(' ')'
     | '(' pat ')'
     | '(' pat ',' pat_list? ')'
@@ -483,6 +483,10 @@ pat_no_mut:
     | '&&' pat_no_mut   // `&& pat` means the same as `& & pat`
     | '&&' 'mut' pat
     | 'box' pat;
+
+pat_range_end:
+    path
+    | pat_lit;
 
 pat_lit:
     '-'? lit;
