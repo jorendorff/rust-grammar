@@ -169,7 +169,7 @@ struct_decl:
 struct_tail:
     where_clause? ';'
     | '(' tuple_struct_field_list ')' where_clause? ';'
-    | where_clause? '{' field_decl_list? '}';  // braced empty structs are unstable (#29720)
+    | where_clause? '{' field_decl_list? '}';  // unstable braced empty structs (#29720)
 
 tuple_struct_field:
     attr* 'pub'? ty;
@@ -194,7 +194,7 @@ enum_variant_list:
 
 enum_variant_main:
     Ident '(' enum_tuple_field_list ')'
-    | Ident '{' enum_field_decl_list '}'
+    | Ident '{' enum_field_decl_list? '}'  // unstable braced empty structs
     | Ident '=' expr
     | Ident;
 
