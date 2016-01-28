@@ -218,10 +218,14 @@ trait_decl:
 
 trait_item:
     attr* 'type' Ident colon_bound? ty_default? ';'
+    | attr* 'const' Ident ':' ty_sum const_default? ';'  // experimental associated constants
     | attr* trait_method_decl;
 
 ty_default:
     '=' ty;
+
+const_default:
+    '=' expr;
 
 
 // --- impl blocks
@@ -241,6 +245,7 @@ impl_item:
 impl_item_tail:
     method_decl
     | 'type' Ident '=' ty ';'
+    | const_decl  // experimental associated constants
     | Ident '!' tt_parens ';'
     | Ident '!' tt_block;
 
