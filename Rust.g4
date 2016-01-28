@@ -947,3 +947,4 @@ BlockComment:
 // BUG: rename `lit` -> `literal`
 // BUG: probably inner attributes are allowed in many more places
 // BUG: refactor `use_path` syntax to be like `path`, remove `any_ident`
+// BUG: `let [a, xs.., d] = out;` does not parse
