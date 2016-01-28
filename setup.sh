@@ -15,5 +15,5 @@ function gbuild {
 }
 
 function gcheck {
-    find ../rust/src/libstd -name '*.rs' | java ParserDriver
+    find ../rust/src \( -type d -name parse-fail -prune \) -o \( -type f -name '*.rs' -print \) | java ParserDriver
 }
