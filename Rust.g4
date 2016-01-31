@@ -541,24 +541,22 @@ expr_list:
 
 // --- Blocks
 
+// OK, this is super tricky. There is an ambiguity in the grammar for blocks,
+// `{ stmt* expr? }`, since there are strings that match both `{ stmt expr }`
+// and `{ expr }`.
+//
+// The rule in Rust is that the `{ stmt expr }` parse is preferred: the body
+// of the block `{ loop { break } - 1 }` is a `loop` statement followed by
+// the expression `-1`, not a single subtraction-expression.
+//
+// Agreeably, the rule to resolve such ambiguities in ANTLR4, as in JS regexps,
+// is the same. Earlier alternatives that match are preferred over later
+// alternatives that match longer sequences of source tokens.
 block:
-    '{' block_body? '}';
+    '{' stmt* expr? '}';
 
 block_with_inner_attrs:
-    '{' inner_attr* block_body? '}';
-
-// OK, this is super tricky.
-// This relies on ANTLR4's rule that in alternatives (as in JS regexps),
-// earlier alternatives that match are preferred
-// over later alternatives that match longer sequences of source tokens.
-// The rule `stmt block_body` precedes `expr` because
-// that correctly resolves the ambiguity in parsing blocks like
-// `{ loop { } - 1 }`.
-// This example is parsed like `{ (loop {}); (-1) }`,
-// not like `{ (loop { } - 1) }`.
-block_body:
-    stmt block_body?
-    | expr;
+    '{' inner_attr* stmt* expr? '}';
 
 stmt:
     ';'
