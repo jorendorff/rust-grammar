@@ -542,10 +542,10 @@ expr_list:
 // --- Blocks
 
 block:
-    '{' block_body '}';
+    '{' block_body? '}';
 
 block_with_inner_attrs:
-    '{' inner_attr* block_body '}';
+    '{' inner_attr* block_body? '}';
 
 // OK, this is super tricky.
 // This relies on ANTLR4's rule that in alternatives (as in JS regexps),
@@ -557,8 +557,7 @@ block_with_inner_attrs:
 // This example is parsed like `{ (loop {}); (-1) }`,
 // not like `{ (loop { } - 1) }`.
 block_body:
-    /*empty*/
-    | stmt block_body
+    stmt block_body?
     | expr;
 
 stmt:
