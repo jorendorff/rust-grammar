@@ -134,6 +134,9 @@ param_list:
 variadic_param_list:
     param (',' param)* (',' '...')? ','?;
 
+variadic_param_list_names_optional:
+    trait_method_param (',' trait_method_param)* (',' '...')? ','?;
+
 self_param:
     'mut'? 'self' (':' ty)?
     | '&' Lifetime? 'mut'? 'self';
@@ -407,7 +410,7 @@ ty:
     | '&' Lifetime? 'mut'? ty
     | '&&' Lifetime? 'mut'? ty          // meaning `& & ty`
     | '*' mut_or_const ty               // pointer type
-    | for_lifetime? 'unsafe'? extern_abi? 'fn' '(' trait_method_param_list? ')' rtype?
+    | for_lifetime? 'unsafe'? extern_abi? 'fn' '(' variadic_param_list_names_optional? ')' rtype?
     | ty_path macro_tail?;
 
 mut_or_const:
