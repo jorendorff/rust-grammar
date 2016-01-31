@@ -95,10 +95,10 @@ foreign_item_tail:
 // --- static and const declarations
 
 static_decl:
-    'static' 'mut'? Ident ':' ty '=' expr ';';
+    'static' 'mut'? Ident ':' ty_sum '=' expr ';';
 
 const_decl:
-    'const' Ident ':' ty '=' expr ';';
+    'const' Ident ':' ty_sum '=' expr ';';
 
 
 // --- Functions
@@ -126,7 +126,7 @@ fn_head:
     'const'? 'unsafe'? extern_abi? 'fn' Ident ty_params?;
 
 param:
-    pat ':' ty;
+    pat ':' ty_sum;
 
 param_list:
     param (',' param)* ','?;
@@ -138,18 +138,18 @@ variadic_param_list_names_optional:
     trait_method_param (',' trait_method_param)* (',' '...')? ','?;
 
 self_param:
-    'mut'? 'self' (':' ty)?
+    'mut'? 'self' (':' ty_sum)?
     | '&' Lifetime? 'mut'? 'self';
 
 method_param_list:
     (param | self_param) (',' param)* ','?;
 
 // Argument names are optional in traits. The ideal grammar here would be
-// `(pat ':')? ty`, but parsing this would be unreasonably complicated.
+// `(pat ':')? ty_sum`, but parsing this would be unreasonably complicated.
 // Instead, the `pat` is restricted to a few short, simple cases.
 trait_method_param:
-    restricted_pat ':' ty
-    | ty;
+    restricted_pat ':' ty_sum
+    | ty_sum;
 
 restricted_pat:
     ('&' | '&&' | 'mut')? ('_' | Ident);
@@ -157,6 +157,11 @@ restricted_pat:
 trait_method_param_list:
     (trait_method_param | self_param) (',' trait_method_param)* ','?;
 
+// `ty_sum` is permitted in parameter types (although as a matter of semantics
+// an actual sum is always rejected later, as having no statically known size),
+// but only `ty` in return types. This means that in the where-clause
+// `where T: Fn() -> X + Clone`, we're saying that T implements both
+// `Fn() -> X` and `Clone`, not that its return type is `X + Clone`.
 rtype:
     '->' (ty | '!');
 
@@ -203,14 +208,14 @@ enum_variant_main:
 
 // enum variants that are tuple-struct-like can't have `pub` on individual fields.
 enum_tuple_field:
-    attr* ty;
+    attr* ty_sum;
 
 enum_tuple_field_list:
     enum_tuple_field (',' enum_tuple_field)* ','?;
 
 // enum variants that are struct-like can't have `pub` on individual fields.
 enum_field_decl:
-    Ident ':' ty;
+    Ident ':' ty_sum;
 
 enum_field_decl_list:
     enum_field_decl (',' enum_field_decl)* ','?;
@@ -316,7 +321,7 @@ path_parent:
     | path_parent '::' path_segment;
 
 as_trait:
-    'as' ty;
+    'as' ty_sum;
 
 path_segment:
     path_segment_no_super
@@ -331,7 +336,7 @@ simple_path_segment:
 
 
 // === Type paths
-// (forward references: ty_list, rtype, ty_sum, ty_args)
+// (forward references: rtype, ty_sum, ty_args)
 
 ty_path:
     for_lifetime? ty_path_main;
@@ -354,7 +359,7 @@ ty_path_main:
     | ty_path_parent? '::' ty_path_tail;
 
 ty_path_tail:
-    (Ident | 'Self') '(' ty_list? ')' rtype?
+    (Ident | 'Self') '(' ty_sum_list? ')' rtype?
     | ty_path_segment_no_super;
 
 ty_path_parent:
@@ -406,7 +411,7 @@ ty:
     | '(' ')'                           // unit
     | '(' ty_sum ')'                    // grouping (parens are ignored)
     | '(' ty_sum ',' ty_sum_list? ')'   // tuple
-    | '[' ty (';' expr)? ']'
+    | '[' ty_sum (';' expr)? ']'
     | '&' Lifetime? 'mut'? ty
     | '&&' Lifetime? 'mut'? ty          // meaning `& & ty`
     | '*' mut_or_const ty               // pointer type
@@ -420,9 +425,6 @@ mut_or_const:
 extern_abi:
     'extern' StringLit?;
 
-ty_list:
-    ty (',' ty)* ','?;
-
 ty_args:
     '<' lifetime_list '>'
     | '<' (Lifetime ',')* ty_arg_list '>';
@@ -434,7 +436,7 @@ ty_sum_list:
     ty_sum (',' ty_sum)* ','?;
 
 ty_arg:
-    Ident '=' ty
+    Ident '=' ty_sum
     | ty_sum;
 
 ty_arg_list:
@@ -685,8 +687,8 @@ pre_expr:
 
 cast_expr:
     pre_expr
-    | cast_expr 'as' ty
-    | cast_expr ':' ty;  // experimental type ascription
+    | cast_expr 'as' ty_sum
+    | cast_expr ':' ty_sum;  // experimental type ascription
 
 mul_expr:
     cast_expr
@@ -756,7 +758,8 @@ pre_expr_no_struct:
 
 cast_expr_no_struct:
     pre_expr_no_struct
-    | cast_expr_no_struct 'as' ty;
+    | cast_expr_no_struct 'as' ty_sum
+    | cast_expr_no_struct ':' ty_sum;
 
 mul_expr_no_struct:
     cast_expr_no_struct
@@ -959,10 +962,6 @@ BlockComment:
 // BUG: only ascii identifiers are permitted
 // BUG: doc comments are ignored
 // BUG: associated constants are not supported
-// BUG: probably most places that use `ty` and `ty_list` are wrong,
-//      and should use `ty_sum` and `ty_sum_list`
-// BUG: `ty_sum` does not include `?Send` but should
-// BUG: look into unifying `ty_sum` and `bound`
 // BUG: rename `lit` -> `literal`
 // BUG: probably inner attributes are allowed in many more places
 // BUG: refactor `use_path` syntax to be like `path`, remove `any_ident`
