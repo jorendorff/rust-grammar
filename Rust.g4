@@ -498,7 +498,10 @@ pat_list:
 
 pat_list_with_dots:
     '..'
-    | pat (',' pat)* (',' '..' | ','?);
+    | pat (',' pat)* pat_list_dots_tail?;
+
+pat_list_dots_tail:
+    ',' '..'?;
 
 // rustc does not accept `[1, 2, tail..,]` as a pattern, because of the
 // trailing comma, but I don't see how this is justifiable.  The rest of the
