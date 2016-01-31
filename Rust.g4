@@ -172,13 +172,13 @@ struct_tail:
     | where_clause? '{' field_decl_list? '}';  // unstable braced empty structs (#29720)
 
 tuple_struct_field:
-    attr* 'pub'? ty;
+    attr* 'pub'? ty_sum;
 
 tuple_struct_field_list:
     tuple_struct_field (',' tuple_struct_field)* ','?;
 
 field_decl:
-    attr* 'pub'? Ident ':' ty;
+    attr* 'pub'? Ident ':' ty_sum;
 
 field_decl_list:
     field_decl (',' field_decl)* ','?;
