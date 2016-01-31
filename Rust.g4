@@ -184,7 +184,7 @@ field_decl_list:
     field_decl (',' field_decl)* ','?;
 
 enum_decl:
-    'enum' Ident ty_params? '{' enum_variant_list? '}';
+    'enum' Ident ty_params? where_clause? '{' enum_variant_list? '}';
 
 enum_variant:
     attr* enum_variant_main;
