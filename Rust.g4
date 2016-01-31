@@ -164,7 +164,7 @@ rtype:
 // --- type, struct, and enum declarations
 
 type_decl:
-    'type' Ident ty_params? '=' ty ';';
+    'type' Ident ty_params? where_clause? '=' ty_sum ';';
 
 struct_decl:
     'struct' Ident ty_params? struct_tail;
@@ -227,7 +227,7 @@ trait_item:
     | attr* trait_method_decl;
 
 ty_default:
-    '=' ty;
+    '=' ty_sum;
 
 const_default:
     '=' expr;
@@ -249,7 +249,7 @@ impl_item:
 
 impl_item_tail:
     method_decl
-    | 'type' Ident '=' ty ';'
+    | 'type' Ident '=' ty_sum ';'
     | const_decl  // experimental associated constants
     | Ident '!' tt_parens ';'
     | Ident '!' tt_block;
