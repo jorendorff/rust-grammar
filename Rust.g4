@@ -408,7 +408,7 @@ ty:
     | '&&' Lifetime? 'mut'? ty          // meaning `& & ty`
     | '*' mut_or_const ty               // pointer type
     | for_lifetime? 'unsafe'? extern_abi? 'fn' '(' trait_method_param_list? ')' rtype?
-    | ty_path;
+    | ty_path macro_tail?;
 
 mut_or_const:
     'mut'
