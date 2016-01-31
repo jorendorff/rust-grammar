@@ -479,7 +479,7 @@ pat_no_mut:
     | '(' ')'
     | '(' pat ')'
     | '(' pat ',' pat_list? ')'
-    | '[' pat_list_with_dots? ']'
+    | '[' pat_elt_list? ']'  // experimental slice patterns
     | '&' pat_no_mut
     | '&' 'mut' pat
     | '&&' pat_no_mut   // `&& pat` means the same as `& & pat`
@@ -499,6 +499,21 @@ pat_list:
 pat_list_with_dots:
     '..'
     | pat (',' pat)* (',' '..' | ','?);
+
+// rustc does not accept `[1, 2, tail..,]` as a pattern, because of the
+// trailing comma, but I don't see how this is justifiable.  The rest of the
+// language is *extremely* consistent in this regard, so I allow the trailing
+// comma here.
+//
+// This grammar does not enforce the rule that a given slice pattern must have
+// at most one `..`.
+
+pat_elt:
+    pat '..'?
+    | '..';
+
+pat_elt_list:
+    pat_elt (',' pat_elt)* ','?;
 
 pat_fields:
     '..'
