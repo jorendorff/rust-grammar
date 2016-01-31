@@ -56,7 +56,7 @@ use_path:
 
 use_suffix:
     '::' '*'
-    | '::' '{' use_item_list '}'
+    | '::' '{' use_item_list? '}'
     | rename;
 
 use_item:
