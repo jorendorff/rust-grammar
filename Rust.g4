@@ -14,6 +14,7 @@ mod_body:
 item:
     attr* 'pub'? pub_item
     | attr* impl_block
+    | attr* extern_mod
     | attr* item_macro_use;
 
 pub_item:
@@ -21,7 +22,6 @@ pub_item:
     | use_decl
     | mod_decl_short
     | mod_decl
-    | extern_mod
     | static_decl
     | const_decl
     | fn_decl
