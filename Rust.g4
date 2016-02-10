@@ -527,7 +527,7 @@ pat_fields:
     | pat_field (',' pat_field)* (',' '..' | ','?);
 
 pat_field:
-    'ref'? 'mut'? Ident
+    'box'? 'ref'? 'mut'? Ident
     | Ident ':' pat;
 
 
