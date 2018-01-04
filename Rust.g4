@@ -11,8 +11,14 @@ crate:
 mod_body:
     inner_attr* item*;
 
+visibility:
+    'pub' visibility_restriction?;
+
+visibility_restriction:
+    '(' 'crate' ')';
+
 item:
-    attr* 'pub'? pub_item
+    attr* visibility? pub_item
     | attr* impl_block
     | attr* extern_mod
     | attr* item_macro_use;
@@ -31,18 +37,18 @@ pub_item:
     | trait_decl;
 
 item_macro_use:
-    Ident '!' item_macro_tail;
+    ident '!' item_macro_tail;
 
 item_macro_tail:
-    Ident? tt_parens ';'
-    | Ident tt_brackets ';'
-    | Ident? tt_block;
+    ident? tt_parens ';'
+    | ident tt_brackets ';'
+    | ident? tt_block;
 
 
 // --- extern crate
 
 extern_crate:
-    'extern' 'crate' Ident rename? ';';
+    'extern' 'crate' ident rename? ';';
 
 
 // --- use declarations
@@ -66,16 +72,16 @@ use_item_list:
     use_item (',' use_item)* ','?;
 
 rename:
-    'as' Ident;
+    'as' ident;
 
 
 // --- Modules
 
 mod_decl_short:
-    'mod' Ident ';';
+    'mod' ident ';';
 
 mod_decl:
-    'mod' Ident '{' mod_body '}';
+    'mod' ident '{' mod_body '}';
 
 
 // --- Foreign modules
@@ -84,21 +90,21 @@ extern_mod:
     extern_abi '{' inner_attr* foreign_item* '}';
 
 foreign_item:
-    attr* 'pub'? foreign_item_tail
+    attr* visibility? foreign_item_tail
     | attr* item_macro_use;
 
 foreign_item_tail:
-    'static' 'mut'? Ident ':' ty_sum ';'
+    'static' 'mut'? ident ':' ty_sum ';'
     | foreign_fn_decl;
 
 
 // --- static and const declarations
 
 static_decl:
-    'static' 'mut'? Ident ':' ty_sum '=' expr ';';
+    'static' 'mut'? ident ':' ty_sum '=' expr ';';
 
 const_decl:
-    'const' Ident ':' ty_sum '=' expr ';';
+    'const' ident ':' ty_sum '=' expr ';';
 
 
 // --- Functions
@@ -123,7 +129,7 @@ foreign_fn_decl:
 // rule, not a syntactic one. That is, not every rule that can be
 // enforced gramatically should be.
 fn_head:
-    'const'? 'unsafe'? extern_abi? 'fn' Ident ty_params?;
+    'const'? 'unsafe'? extern_abi? 'fn' ident ty_params?;
 
 param:
     pat ':' ty_sum;
@@ -152,7 +158,7 @@ trait_method_param:
     | ty_sum;
 
 restricted_pat:
-    ('&' | '&&' | 'mut')? ('_' | Ident);
+    ('&' | '&&' | 'mut')? ('_' | ident);
 
 trait_method_param_list:
     (trait_method_param | self_param) (',' trait_method_param)* ','?;
@@ -169,10 +175,10 @@ rtype:
 // --- type, struct, and enum declarations
 
 type_decl:
-    'type' Ident ty_params? where_clause? '=' ty_sum ';';
+    'type' ident ty_params? where_clause? '=' ty_sum ';';
 
 struct_decl:
-    'struct' Ident ty_params? struct_tail;
+    'struct' ident ty_params? struct_tail;
 
 struct_tail:
     where_clause? ';'
@@ -180,19 +186,19 @@ struct_tail:
     | where_clause? '{' field_decl_list? '}';  // unstable braced empty structs (#29720)
 
 tuple_struct_field:
-    attr* 'pub'? ty_sum;
+    attr* visibility? ty_sum;
 
 tuple_struct_field_list:
     tuple_struct_field (',' tuple_struct_field)* ','?;
 
 field_decl:
-    attr* 'pub'? Ident ':' ty_sum;
+    attr* visibility? ident ':' ty_sum;
 
 field_decl_list:
     field_decl (',' field_decl)* ','?;
 
 enum_decl:
-    'enum' Ident ty_params? where_clause? '{' enum_variant_list? '}';
+    'enum' ident ty_params? where_clause? '{' enum_variant_list? '}';
 
 enum_variant:
     attr* enum_variant_main;
@@ -201,10 +207,10 @@ enum_variant_list:
     enum_variant (',' enum_variant)* ','?;
 
 enum_variant_main:
-    Ident '(' enum_tuple_field_list ')'
-    | Ident '{' enum_field_decl_list? '}'  // unstable braced empty structs
-    | Ident '=' expr
-    | Ident;
+    ident '(' enum_tuple_field_list ')'
+    | ident '{' enum_field_decl_list? '}'  // unstable braced empty structs
+    | ident '=' expr
+    | ident;
 
 // enum variants that are tuple-struct-like can't have `pub` on individual fields.
 enum_tuple_field:
@@ -215,7 +221,7 @@ enum_tuple_field_list:
 
 // enum variants that are struct-like can't have `pub` on individual fields.
 enum_field_decl:
-    Ident ':' ty_sum;
+    ident ':' ty_sum;
 
 enum_field_decl_list:
     enum_field_decl (',' enum_field_decl)* ','?;
@@ -224,11 +230,11 @@ enum_field_decl_list:
 // --- Traits
 
 trait_decl:
-    'unsafe'? 'trait' Ident ty_params? colon_bound? where_clause? '{' trait_item* '}';
+    'unsafe'? 'trait' ident ty_params? colon_bound? where_clause? '{' trait_item* '}';
 
 trait_item:
-    attr* 'type' Ident colon_bound? ty_default? ';'
-    | attr* 'const' Ident ':' ty_sum const_default? ';'  // experimental associated constants
+    attr* 'type' ident colon_bound? ty_default? ';'
+    | attr* 'const' ident ':' ty_sum const_default? ';'  // experimental associated constants
     | attr* trait_method_decl;
 
 ty_default:
@@ -250,14 +256,14 @@ impl_what:
     | ty_sum;
 
 impl_item:
-    attr* 'pub'? impl_item_tail;
+    attr* visibility? impl_item_tail;
 
 impl_item_tail:
-    method_decl
-    | 'type' Ident '=' ty_sum ';'
+    'default'? method_decl
+    | 'type' ident '=' ty_sum ';'
     | const_decl  // experimental associated constants
-    | Ident '!' tt_parens ';'
-    | Ident '!' tt_block;
+    | ident '!' tt_parens ';'
+    | ident '!' tt_block;
 
 
 // === Attributes and token trees
@@ -331,7 +337,7 @@ path_segment_no_super:
     simple_path_segment ('::' ty_args)?;
 
 simple_path_segment:
-    Ident
+    ident
     | 'Self';
 
 
@@ -359,7 +365,7 @@ ty_path_main:
     | ty_path_parent? '::' ty_path_tail;
 
 ty_path_tail:
-    (Ident | 'Self') '(' ty_sum_list? ')' rtype?
+    (ident | 'Self') '(' ty_sum_list? ')' rtype?
     | ty_path_segment_no_super;
 
 ty_path_parent:
@@ -374,7 +380,7 @@ ty_path_segment:
     | 'super';
 
 ty_path_segment_no_super:
-    (Ident | 'Self') ty_args?;
+    (ident | 'Self') ty_args?;
 
 
 // === Type bounds
@@ -436,7 +442,7 @@ ty_sum_list:
     ty_sum (',' ty_sum)* ','?;
 
 ty_arg:
-    Ident '=' ty_sum
+    ident '=' ty_sum
     | ty_sum;
 
 ty_arg_list:
@@ -456,7 +462,7 @@ lifetime_param_list:
     lifetime_param (',' lifetime_param)* ','?;
 
 ty_param:
-    Ident colon_bound? ty_default?;
+    attr* ident colon_bound? ty_default?;
 
 ty_param_list:
     ty_param (',' ty_param)* ','?;
@@ -466,7 +472,7 @@ ty_param_list:
 
 pat:
     pat_no_mut
-    | 'mut' Ident ('@' pat)?;
+    | 'mut' ident ('@' pat)?;
 
 // A `pat_no_mut` is a pattern that does not start with `mut`.
 // It is distinct from `pat` to rule out ambiguity in parsing the
@@ -475,12 +481,12 @@ pat_no_mut:
     '_'
     | pat_lit
     | pat_range_end '...' pat_range_end
-    | Ident macro_tail
-    | 'ref'? Ident ('@' pat)?
-    | 'ref' 'mut' Ident ('@' pat)?
+    | ident macro_tail
+    | 'ref'? ident ('@' pat)?
+    | 'ref' 'mut' ident ('@' pat)?
     | path '(' pat_list_with_dots ')'
     | path '{' pat_fields? '}'
-    | path  // BUG: ambiguity with bare Ident case (above)
+    | path  // BUG: ambiguity with bare ident case (above)
     | '(' ')'
     | '(' pat ',' pat_list? ')'
     | '[' pat_elt_list? ']'  // experimental slice patterns
@@ -527,8 +533,8 @@ pat_fields:
     | pat_field (',' pat_field)* (',' '..' | ','?);
 
 pat_field:
-    'box'? 'ref'? 'mut'? Ident
-    | Ident ':' pat;
+    'box'? 'ref'? 'mut'? ident
+    | ident ':' pat;
 
 
 // === Expressions
@@ -659,7 +665,7 @@ struct_update_base:
     '..' expr;  // this is IMO a bug in the grammar. should be or_expr or something.
 
 field:
-    Ident ':' expr;
+    ident (':' expr)?;
 
 
 // --- Operators
@@ -669,8 +675,9 @@ post_expr:
     | post_expr post_expr_tail;
 
 post_expr_tail:
-    '[' expr ']'
-    | '.' Ident (('::' ty_args)? '(' expr_list? ')')?
+    '?'
+    | '[' expr ']'
+    | '.' ident (('::' ty_args)? '(' expr_list? ')')?
     | '.' BareIntLit
     | '(' expr_list? ')';
 
@@ -813,8 +820,14 @@ assign_expr_no_struct:
 
 // === Tokens
 
-any_ident:
+// `default` is an identifier, but in one context it is recognized specially as
+// a keyword.
+ident:
     Ident
+    | 'default';
+
+any_ident:
+    ident
     | 'Self'
     | 'self'
     | 'static'
