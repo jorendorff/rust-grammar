@@ -808,7 +808,7 @@ pre_expr_no_struct:
 cast_expr_no_struct:
     pre_expr_no_struct
     | cast_expr_no_struct 'as' ty_sum
-    | cast_expr_no_struct ':' ty_sum;
+    | cast_expr_no_struct ':' ty_sum;  // experimental type ascription
 
 mul_expr_no_struct:
     cast_expr_no_struct
