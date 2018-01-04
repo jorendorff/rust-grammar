@@ -440,6 +440,9 @@ ty_args:
     '<' lifetime_list '>'
     | '<' (Lifetime ',')* ty_arg_list '>';
 
+lifetime_list:
+    Lifetime (',' Lifetime)* ','?;
+
 ty_sum:
     ty ('+' bound)?;
 
@@ -457,11 +460,8 @@ ty_params:
     '<' lifetime_param_list '>'
     | '<' (lifetime_param ',')* ty_param_list '>';
 
-lifetime_list:
-    Lifetime (',' Lifetime)* ','?;
-
 lifetime_param:
-    Lifetime (':' lifetime_bound)?;
+    attr* Lifetime (':' lifetime_bound)?;
 
 lifetime_param_list:
     lifetime_param (',' lifetime_param)* ','?;
