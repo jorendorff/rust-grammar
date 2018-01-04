@@ -14,8 +14,16 @@ mod_body:
 visibility:
     'pub' visibility_restriction?;
 
+// Note that `pub(` does not necessarily signal the beginning of a visibility
+// restriction! For example:
+//
+//     struct T(i32, i32, pub(i32));
+//
+// Here the `(` is part of the type `(i32)`.
 visibility_restriction:
-    '(' 'crate' ')';
+    '(' 'crate' ')'
+    | '(' 'super' ')'
+    | '(' 'in' ident ')';
 
 item:
     attr* visibility? pub_item
