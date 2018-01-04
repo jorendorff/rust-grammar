@@ -566,8 +566,12 @@ expr_list:
 // Agreeably, the rule to resolve such ambiguities in ANTLR4, as in JS regexps,
 // is the same. Earlier alternatives that match are preferred over later
 // alternatives that match longer sequences of source tokens.
+//
+// In a separate complication, all blocks may contain inner attrs when
+// `feature(stmt_expr_attributes)` is enabled.
 block:
-    '{' stmt* expr? '}';
+    // '{' stmt* expr? '}';
+    block_with_inner_attrs;  // experimental stmt_expr_attributes
 
 block_with_inner_attrs:
     '{' inner_attr* stmt* expr? '}';
