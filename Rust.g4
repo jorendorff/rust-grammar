@@ -916,7 +916,7 @@ fragment BYTE_STRING_ELEMENT:
     | OTHER_STRING_ELEMENT;
 
 fragment RAW_BYTE_STRING_BODY:
-    '"' [ -\x7f]*? '"'
+    '"' [ -\x7f\n]*? '"'
     | '#' RAW_BYTE_STRING_BODY '#';
 
 ByteStringLit:
