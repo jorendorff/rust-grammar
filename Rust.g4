@@ -518,6 +518,7 @@ pat_no_mut:
     '_'
     | pat_lit
     | pat_range_end '...' pat_range_end
+    | pat_range_end '..' pat_range_end  // experimental `feature(exclusive_range_pattern)`
     | path macro_tail
     | 'ref'? ident ('@' pat)?
     | 'ref' 'mut' ident ('@' pat)?
