@@ -491,10 +491,10 @@ pat_no_mut:
     | ident macro_tail
     | 'ref'? ident ('@' pat)?
     | 'ref' 'mut' ident ('@' pat)?
-    | path '(' pat_list_with_dots ')'
+    | path '(' pat_list_with_dots? ')'
     | path '{' pat_fields? '}'
     | path  // BUG: ambiguity with bare ident case (above)
-    | '(' pat_list_with_dots ')'
+    | '(' pat_list_with_dots? ')'
     | '[' pat_elt_list? ']'  // experimental slice patterns
     | '&' pat_no_mut
     | '&' 'mut' pat
@@ -513,11 +513,11 @@ pat_list:
     pat (',' pat)* ','?;
 
 pat_list_with_dots:
-    '..'
-    | pat (',' pat)* pat_list_dots_tail?;
+    pat_list_dots_tail
+    | pat (',' pat)* (',' pat_list_dots_tail?)?;
 
 pat_list_dots_tail:
-    ',' '..'?;
+    '..' (',' pat_list)?;
 
 // rustc does not accept `[1, 2, tail..,]` as a pattern, because of the
 // trailing comma, but I don't see how this is justifiable.  The rest of the
