@@ -34,6 +34,7 @@ pub_item:
     | type_decl
     | struct_decl
     | enum_decl
+    | union_decl
     | trait_decl;
 
 item_macro_use:
@@ -225,6 +226,9 @@ enum_field_decl:
 
 enum_field_decl_list:
     enum_field_decl (',' enum_field_decl)* ','?;
+
+union_decl:
+    'union' ident '{' field_decl_list '}';
 
 
 // --- Traits
@@ -820,11 +824,12 @@ assign_expr_no_struct:
 
 // === Tokens
 
-// `default` is an identifier, but in one context it is recognized specially as
-// a keyword.
+// `default` and 'union' are identifiers, but in certain places they're
+// specially recognized as keywords.
 ident:
     Ident
-    | 'default';
+    | 'default'
+    | 'union';
 
 any_ident:
     ident
