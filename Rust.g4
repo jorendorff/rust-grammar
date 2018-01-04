@@ -96,6 +96,7 @@ foreign_item:
 
 foreign_item_tail:
     'static' 'mut'? ident ':' ty_sum ';'
+    | 'type' ident ';'
     | foreign_fn_decl;
 
 
