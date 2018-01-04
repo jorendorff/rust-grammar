@@ -134,7 +134,11 @@ fn_head:
     'const'? 'unsafe'? extern_abi? 'fn' ident ty_params?;
 
 param:
-    pat ':' ty_sum;
+    pat ':' param_ty;
+
+param_ty:
+    ty_sum
+    | 'impl' bound;  // experimental: feature(universal_impl_trait)
 
 param_list:
     param (',' param)* ','?;
