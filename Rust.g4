@@ -234,8 +234,10 @@ union_decl:
 
 // --- Traits
 
+// The `auto trait` syntax is an experimental feature, `optin_builtin_traits`,
+// also known as OIBIT.
 trait_decl:
-    'unsafe'? 'trait' ident ty_params? colon_bound? where_clause? '{' trait_item* '}';
+    'unsafe'? 'auto'? 'trait' ident ty_params? colon_bound? where_clause? '{' trait_item* '}';
 
 trait_item:
     attr* 'type' ident colon_bound? ty_default? ';'
@@ -828,10 +830,11 @@ assign_expr_no_struct:
 
 // === Tokens
 
-// `default` and 'union' are identifiers, but in certain places they're
-// specially recognized as keywords.
+// `auto`, `default`, and 'union' are identifiers, but in certain places
+// they're specially recognized as keywords.
 ident:
     Ident
+    | 'auto'
     | 'default'
     | 'union';
 
