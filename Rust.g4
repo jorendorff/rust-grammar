@@ -46,12 +46,26 @@ pub_item:
     | trait_decl;
 
 item_macro_use:
-    ident '!' item_macro_tail;
+    item_macro_path '!' ident? item_macro_tail;
+
+item_macro_path:
+    ident
+    | item_macro_path_parent? '::' ident;  // experimental `feature(use_extern_macros)`
+
+item_macro_path_parent:
+    'self'
+    | item_macro_path_segment
+    | '::' item_macro_path_segment
+    | item_macro_path_parent '::' item_macro_path_segment;
+
+item_macro_path_segment:
+    ident
+    | 'super';
 
 item_macro_tail:
-    ident? tt_parens ';'
-    | ident tt_brackets ';'
-    | ident? tt_block;
+    tt_parens ';'
+    | tt_brackets ';'
+    | tt_block;
 
 
 // --- extern crate
@@ -258,7 +272,8 @@ trait_decl:
 trait_item:
     attr* 'type' ident colon_bound? ty_default? ';'
     | attr* 'const' ident ':' ty_sum const_default? ';'  // experimental associated constants
-    | attr* trait_method_decl;
+    | attr* trait_method_decl
+    | attr* item_macro_path '!' item_macro_tail;
 
 ty_default:
     '=' ty_sum;
@@ -285,8 +300,7 @@ impl_item_tail:
     'default'? method_decl
     | 'type' ident '=' ty_sum ';'
     | const_decl  // experimental associated constants
-    | ident '!' tt_parens ';'
-    | ident '!' tt_block;
+    | item_macro_path '!' item_macro_tail;
 
 
 // === Attributes and token trees
@@ -504,7 +518,7 @@ pat_no_mut:
     '_'
     | pat_lit
     | pat_range_end '...' pat_range_end
-    | ident macro_tail
+    | path macro_tail
     | 'ref'? ident ('@' pat)?
     | 'ref' 'mut' ident ('@' pat)?
     | path '(' pat_list_with_dots? ')'
