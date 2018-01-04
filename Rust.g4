@@ -196,8 +196,8 @@ struct_decl:
 
 struct_tail:
     where_clause? ';'
-    | '(' tuple_struct_field_list ')' where_clause? ';'
-    | where_clause? '{' field_decl_list? '}';  // unstable braced empty structs (#29720)
+    | '(' tuple_struct_field_list? ')' where_clause? ';'
+    | where_clause? '{' field_decl_list? '}';
 
 tuple_struct_field:
     attr* visibility? ty_sum;
@@ -221,8 +221,8 @@ enum_variant_list:
     enum_variant (',' enum_variant)* ','?;
 
 enum_variant_main:
-    ident '(' enum_tuple_field_list ')'
-    | ident '{' enum_field_decl_list? '}'  // unstable braced empty structs
+    ident '(' enum_tuple_field_list? ')'
+    | ident '{' enum_field_decl_list? '}'
     | ident '=' expr
     | ident;
 
