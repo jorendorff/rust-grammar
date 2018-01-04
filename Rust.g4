@@ -120,10 +120,10 @@ const_decl:
 // --- Functions
 
 fn_decl:
-    fn_head '(' param_list? ')' rtype? where_clause? block_with_inner_attrs;
+    fn_head '(' param_list? ')' fn_rtype? where_clause? block_with_inner_attrs;
 
 method_decl:
-    fn_head '(' method_param_list? ')' rtype? where_clause? block_with_inner_attrs;
+    fn_head '(' method_param_list? ')' fn_rtype? where_clause? block_with_inner_attrs;
 
 trait_method_decl:
     fn_head '(' trait_method_param_list? ')' rtype? where_clause? (block_with_inner_attrs | ';');
@@ -184,6 +184,10 @@ trait_method_param_list:
 // `Fn() -> X` and `Clone`, not that its return type is `X + Clone`.
 rtype:
     '->' (ty | '!');
+
+// Experimental `feature(conservative_impl_trait)`.
+fn_rtype:
+    '->' (ty | '!' | 'impl' bound);
 
 
 // --- type, struct, and enum declarations
