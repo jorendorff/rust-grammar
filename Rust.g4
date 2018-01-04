@@ -568,34 +568,47 @@ expr_list:
 // Agreeably, the rule to resolve such ambiguities in ANTLR4, as in JS regexps,
 // is the same. Earlier alternatives that match are preferred over later
 // alternatives that match longer sequences of source tokens.
-//
-// In a separate complication, all blocks may contain inner attrs when
-// `feature(stmt_expr_attributes)` is enabled.
 block:
-    // '{' stmt* expr? '}';
-    block_with_inner_attrs;  // experimental stmt_expr_attributes
+    '{' stmt* expr? '}';
 
+// Shared by blocky_expr and fn_body; in the latter case, any inner attributes
+// apply to the whole fn.
 block_with_inner_attrs:
     '{' inner_attr* stmt* expr? '}';
 
 stmt:
     ';'
     | item  // Statement macros are included here.
-    | attr* stmt_tail;
+    | stmt_tail;
 
+// Attributes are supported on most statements.  Let statements can have
+// attributes; block statements can have outer or inner attributes, like this:
+//
+//     fn f() {
+//         #[cfg(test)]
+//         {
+//             #![allow()]
+//             println!("testing...");
+//         }
+//     }
+//
+// Attributes on block expressions that appear anywhere else are an
+// experimental feature, `feature(stmt_expr_attributes)`. We support both.
 stmt_tail:
-    'let' pat (':' ty)? ('=' expr)? ';'
-    | blocky_expr
+    attr* 'let' pat (':' ty)? ('=' expr)? ';'
+    | attr* blocky_expr
     | expr ';';
 
+// Inner attributes in `match`, `while`, `for`, `loop`, and `unsafe` blocks are
+// experimental, `feature(stmt_expr_attributes)`.
 blocky_expr:
-    block
+    block_with_inner_attrs
     | 'if' cond_or_pat block ('else' 'if' cond_or_pat block)* ('else' block)?
-    | 'match' expr_no_struct '{' match_arms? '}'
-    | loop_label? 'while' cond_or_pat block
-    | loop_label? 'for' pat 'in' expr_no_struct block
-    | loop_label? 'loop' block
-    | 'unsafe' block;
+    | 'match' expr_no_struct '{' expr_inner_attrs? match_arms? '}'
+    | loop_label? 'while' cond_or_pat block_with_inner_attrs
+    | loop_label? 'for' pat 'in' expr_no_struct block_with_inner_attrs
+    | loop_label? 'loop' block_with_inner_attrs
+    | 'unsafe' block_with_inner_attrs;
 
 cond_or_pat:
     expr_no_struct
@@ -621,9 +634,19 @@ match_if_clause:
 
 // --- Primary expressions
 
+// Attributes on expressions are experimental.
+// Enable with `feature(stmt_expr_attributes)`.
+expr_attrs:
+    attr attr*;
+
+// Inner attributes in array and struct expressions are experimental.
+// Enable with `feature(stmt_expr_attributes)`.
+expr_inner_attrs:
+    inner_attr inner_attr*;
+
 prim_expr:
     prim_expr_no_struct
-    | path '{' fields? '}';
+    | path '{' expr_inner_attrs? fields? '}';
 
 prim_expr_no_struct:
     lit
@@ -631,11 +654,11 @@ prim_expr_no_struct:
     | path macro_tail?
     // The next 3 productions match exactly `'(' expr_list ')'`,
     // but (e) and (e,) are distinct expressions, so match them separately
-    | '(' ')'
-    | '(' expr ')'
-    | '(' expr ',' expr_list? ')'
-    | '[' expr_list? ']'
-    | '[' expr ';' expr ']'
+    | '(' expr_inner_attrs? ')'
+    | '(' expr_inner_attrs? expr ')'
+    | '(' expr_inner_attrs? expr ',' expr_list? ')'
+    | '[' expr_inner_attrs? expr_list? ']'
+    | '[' expr_inner_attrs? expr ';' expr ']'
     | 'move'? closure_params closure_tail
     | blocky_expr
     | 'break' Lifetime?
@@ -693,6 +716,7 @@ post_expr_tail:
 
 pre_expr:
     post_expr
+    | expr_attrs pre_expr
     | '-' pre_expr
     | '!' pre_expr
     | '&' 'mut'? pre_expr
@@ -765,6 +789,7 @@ post_expr_no_struct:
 
 pre_expr_no_struct:
     post_expr_no_struct
+    | expr_attrs pre_expr_no_struct
     | '-' pre_expr_no_struct
     | '!' pre_expr_no_struct
     | '&' 'mut'? pre_expr_no_struct
@@ -991,4 +1016,3 @@ BlockComment:
 // BUG: refactor `use_path` syntax to be like `path`, remove `any_ident`
 // BUG: `let [a, xs.., d] = out;` does not parse
 // BUG: ambiguity between expression macros, stmt macros, item macros
-// BUG: attrs on expressions not supported (`2 + #[inline] f()`)
