@@ -492,8 +492,7 @@ pat_no_mut:
     | path '(' pat_list_with_dots ')'
     | path '{' pat_fields? '}'
     | path  // BUG: ambiguity with bare ident case (above)
-    | '(' ')'
-    | '(' pat ',' pat_list? ')'
+    | '(' pat_list_with_dots ')'
     | '[' pat_elt_list? ']'  // experimental slice patterns
     | '&' pat_no_mut
     | '&' 'mut' pat
