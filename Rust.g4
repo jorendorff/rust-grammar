@@ -718,7 +718,12 @@ struct_update_base:
     '..' expr;  // this is IMO a bug in the grammar. should be or_expr or something.
 
 field:
-    ident (':' expr)?;
+    ident  // struct field shorthand (field and local variable have the same name)
+    | field_name ':' expr;
+
+field_name:
+    ident
+    | BareIntLit;  // Allowed for creating tuple struct values.
 
 
 // --- Operators
