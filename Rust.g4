@@ -665,7 +665,7 @@ prim_expr_no_struct:
     | '[' expr_inner_attrs? expr ';' expr ']'
     | 'move'? closure_params closure_tail
     | blocky_expr
-    | 'break' Lifetime?
+    | 'break' lifetime_or_expr?
     | 'continue' Lifetime?
     | 'return' expr?;  // this is IMO a rustc bug, should be expr_no_struct
 
@@ -693,6 +693,10 @@ closure_param_list:
 closure_tail:
     rtype block
     | expr;
+
+lifetime_or_expr:
+    Lifetime
+    | expr_no_struct;
 
 fields:
     struct_update_base
